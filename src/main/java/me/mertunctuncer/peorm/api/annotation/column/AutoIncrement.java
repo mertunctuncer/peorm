@@ -1,0 +1,13 @@
+package me.mertunctuncer.skuery.api.annotation.column;
+
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface AutoIncrement {
+    int increment() default 1;
+}
