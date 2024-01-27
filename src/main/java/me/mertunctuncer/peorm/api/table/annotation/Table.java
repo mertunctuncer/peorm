@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.api.annotation.column;
+package me.mertunctuncer.peorm.api.table.annotation;
 
 
 import java.lang.annotation.ElementType;
@@ -7,5 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface PrimaryKey { }
+@Target(ElementType.TYPE)
+public @interface Table {
+    String name() default "";
+}

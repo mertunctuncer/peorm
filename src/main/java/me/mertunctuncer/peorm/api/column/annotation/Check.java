@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.api.annotation.column;
+package me.mertunctuncer.peorm.api.column.annotation;
 
 
 import java.lang.annotation.ElementType;
