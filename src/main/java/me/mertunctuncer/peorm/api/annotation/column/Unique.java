@@ -1,4 +1,4 @@
-package me.mertunctuncer.skuery.api.annotation.column;
+package me.mertunctuncer.peorm.api.annotation.column;
 
 
 import java.lang.annotation.ElementType;

@@ -1,4 +1,4 @@
-package me.mertunctuncer.skuery.api.annotation.table;
+package me.mertunctuncer.peorm.api.annotation.table;
 
 
 import java.lang.annotation.ElementType;
