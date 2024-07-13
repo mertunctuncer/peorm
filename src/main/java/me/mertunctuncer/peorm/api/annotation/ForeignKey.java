@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.api.column.annotation;
+package me.mertunctuncer.peorm.api.annotation;
 
 
 import java.lang.annotation.ElementType;
@@ -8,6 +8,4 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Column {
-    String name() default "";
-}
+public @interface ForeignKey { }
