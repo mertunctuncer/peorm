@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Identity {
 
-    int start() default 0;
+    int seed() default 0;
     int increment() default 1;
 }

@@ -1,5 +1,8 @@
+import com.adarshr.gradle.testlogger.theme.ThemeType
+
 plugins {
     id("java")
+    id ("com.adarshr.test-logger") version("4.0.0")
 }
 
 group = "me.mertunctuncer"
@@ -14,6 +17,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
+testlogger {
+    theme = ThemeType.PLAIN
+    slowThreshold = 5000
+}
 tasks.test {
+    outputs.upToDateWhen {false}
     useJUnitPlatform()
 }
