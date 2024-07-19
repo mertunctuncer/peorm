@@ -2,7 +2,7 @@ package me.mertunctuncer.peorm.internal.reflection;
 
 import me.mertunctuncer.peorm.api.annotation.*;
 import me.mertunctuncer.peorm.api.util.Pair;
-import me.mertunctuncer.peorm.internal.reflection.model.ColumnData;
+import me.mertunctuncer.peorm.internal.model.ColumnData;
 
 import java.lang.reflect.Field;
 import java.util.*;

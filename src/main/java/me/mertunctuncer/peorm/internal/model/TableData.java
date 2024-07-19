@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.internal.reflection.model;
+package me.mertunctuncer.peorm.internal.model;
 
 import java.util.List;
 

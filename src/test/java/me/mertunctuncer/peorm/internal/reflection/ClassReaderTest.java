@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.internal.reflection;
 
 import me.mertunctuncer.peorm.api.util.Pair;
-import me.mertunctuncer.peorm.internal.reflection.model.ColumnData;
+import me.mertunctuncer.peorm.internal.model.ColumnData;
 import me.mertunctuncer.peorm.mock.NamedMockTable;
 import me.mertunctuncer.peorm.mock.NamelessMockTable;
 import org.junit.jupiter.api.Test;
