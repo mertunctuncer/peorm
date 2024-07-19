@@ -1,7 +1,5 @@
 package me.mertunctuncer.peorm.api.dao;
 
-import me.mertunctuncer.peorm.api.connection.ConnectionProvider;
-import me.mertunctuncer.peorm.api.mapper.TypeMap;
 import me.mertunctuncer.peorm.api.util.SQLSet;
 
 import java.util.Set;
@@ -9,13 +7,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class TableDAO<T> implements TableAccessProvider<T> {
 
-    private final TypeMap typeMap;
-    private final ConnectionProvider connectionProvider;
+    private DatabaseExecutor databaseExecutor;
 
-
-    public TableDAO (TypeMap typeMap, ConnectionProvider connectionProvider) {
-        this.typeMap = typeMap;
-        this.connectionProvider = connectionProvider;
+    public TableDAO (DatabaseExecutor databaseExecutor) {
+        this.databaseExecutor = databaseExecutor;
     }
 
     @Override
