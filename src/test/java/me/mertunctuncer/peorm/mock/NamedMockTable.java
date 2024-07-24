@@ -1,5 +1,6 @@
 package me.mertunctuncer.peorm.mock;
 
+import me.mertunctuncer.peorm.annotation.*;
 import me.mertunctuncer.peorm.api.annotation.*;
 
 @Table(name = "named-mock-table")
@@ -9,12 +10,17 @@ public class NamedMockTable {
     private int id;
 
     @Column
-    @AutoIncrement ( increment = 2 ) @NotNull
+    @AutoIncrement( increment = 2 )
     private int count;
 
 
-    @Column(name = "NAME")
-    @ForeignKey @NotNull @Size(size = 123) @Unique
+    @Column(
+            name = "NAME",
+            nullable = false,
+            size = 123
+    )
+    @ForeignKey
+    @Unique
     private String name;
 
 
