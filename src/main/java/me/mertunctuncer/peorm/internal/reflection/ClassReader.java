@@ -18,77 +18,57 @@ public final class ClassReader {
     }
 
     public static List<Pair<Field, ColumnData>> mapFields(Class<?> clazz) {
+        return mapFields(clazz, null);
+    }
+
+    public static <T> List<Pair<Field, ColumnData>> mapFields(Class<T> clazz, T defaultValueInstance) {
+
         Objects.requireNonNull(clazz, "Class must not be null");
 
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(Column.class))
-                .map(field -> new Pair<>(field, new ColumnData(
-                        getType(field),
-                        getEffectiveName(field),
-                        getSize(field),
-                        isPrimaryKey(field),
-                        isForeignKey(field),
-                        isNullable(field),
-                        isUnique(field),
-                        isIdentity(field),
-                        getIdentitySeed(field),
-                        getIdentityAmount(field),
-                        isAutoIncrement(field),
-                        getAutoIncrementAMount(field)
-                ))).collect(Collectors.toList());
+                .map(field -> {
+                    if(!field.trySetAccessible()) {
+                        return null;
+                    }
+
+                    Column column = field.getAnnotation(Column.class);
+
+                    Class<?> type = field.getType();
+                    String name = column.name().isEmpty() ? field.getName() : column.name();
+                    Integer size = column.size() == -1 ? null : column.size();
+                    boolean nullable = column.nullable();
+
+                    Object defaultValue = getDefaultValue(field, defaultValueInstance);
+
+                    boolean primaryKey = field.isAnnotationPresent(PrimaryKey.class);
+                    boolean foreignKey = field.isAnnotationPresent(ForeignKey.class);
+                    boolean unique = field.isAnnotationPresent(Unique.class);
+                    AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
+
+                    return new Pair<>(field, new ColumnData (
+                            type,
+                            name,
+                            size,
+                            defaultValue,
+                            primaryKey,
+                            foreignKey,
+                            nullable,
+                            unique,
+                            autoIncrement
+                    ));
+
+                }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private static Class<?> getType(Field field) {
-        return field.getType();
-    }
+    private static Object getDefaultValue(Field field, Object valueProvider) {
+        if(valueProvider == null) return null;
 
-    private static boolean isPrimaryKey(Field field) {
-        return field.isAnnotationPresent(PrimaryKey.class);
-    }
-
-    private static boolean isForeignKey(Field field) {
-        return field.isAnnotationPresent(ForeignKey.class);
-    }
-
-    private static boolean isNullable(Field field) {
-        return !field.isAnnotationPresent(NotNull.class);
-    }
-
-    private static boolean isUnique(Field field) {
-        return field.isAnnotationPresent(Unique.class);
-    }
-
-    private static String getEffectiveName(Field field) {
-        Column column = Objects.requireNonNull(field.getAnnotation(Column.class));
-        return column.name().isEmpty() ? field.getName() : column.name();
-    }
-
-    private static short getSize(Field field) {
-        Size annotation = field.getAnnotation(Size.class);
-        return annotation == null ? -1 : annotation.size();
-    }
-
-    private static boolean isIdentity(Field field) {
-        return field.isAnnotationPresent(Identity.class);
-    }
-
-    private static long getIdentitySeed(Field field) {
-        Identity identity = field.getAnnotation(Identity.class);
-        return identity == null ? 0 : identity.seed();
-    }
-
-    private static int getIdentityAmount(Field field) {
-        Identity identity = field.getAnnotation(Identity.class);
-        return identity == null ? 0 : identity.increment();
-    }
-
-    private static boolean isAutoIncrement(Field field) {
-        return field.isAnnotationPresent(AutoIncrement.class);
-    }
-
-    private static int getAutoIncrementAMount(Field field) {
-        AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
-        return autoIncrement == null ? 0 : autoIncrement.increment();
+        try {
+            return field.get(valueProvider);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
 

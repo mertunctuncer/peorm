@@ -2,7 +2,7 @@ package me.mertunctuncer.peorm.api.dao;
 
 import me.mertunctuncer.peorm.api.util.SQLSet;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface TableAccessProvider <T> {
@@ -11,7 +11,9 @@ public interface TableAccessProvider <T> {
     CompletableFuture<Boolean> fetchExistsAsync();
 
     boolean create();
+    boolean create(boolean ifNotExists);
     CompletableFuture<Boolean> createAsync();
+    CompletableFuture<Boolean> createAsync(boolean ifNotExists);
 
     boolean drop();
     CompletableFuture<Boolean> dropAsync();
@@ -30,13 +32,13 @@ public interface TableAccessProvider <T> {
     CompletableFuture<Boolean> updateAsync(T object, SQLSet where);
     CompletableFuture<Boolean> updateAsync(SQLSet set, SQLSet where);
 
-    Set<T> fetch(T object);
-    Set<T> fetch(SQLSet where);
-    Set<T> fetchAll();
+    List<T> fetch(T object);
+    List<T> fetch(SQLSet where);
+    List<T> fetchAll();
 
-    CompletableFuture<Set<T>> fetchAsync(T object);
-    CompletableFuture<Set<T>> fetchAsync(SQLSet where);
-    CompletableFuture<Set<T>> fetchAllAsync();
+    CompletableFuture<List<T>> fetchAsync(T object);
+    CompletableFuture<List<T>> fetchAsync(SQLSet where);
+    CompletableFuture<List<T>> fetchAllAsync();
 
     boolean delete(T object);
     boolean delete(SQLSet where);

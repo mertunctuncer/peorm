@@ -1,17 +1,16 @@
 package me.mertunctuncer.peorm.internal.model;
 
-public record ColumnData(
+import me.mertunctuncer.peorm.api.annotation.AutoIncrement;
+
+public record ColumnData (
         Class<?> type,
         String name,
-        short size,
+        Integer size,
+        Object defaultValue,
         boolean primaryKey,
         boolean foreignKey,
         boolean nullable,
         boolean unique,
-        boolean identity,
-        long identitySeed,
-        int identityIncrementAmount,
-        boolean autoIncrement,
-        int autoIncrementAmount
+        AutoIncrement autoIncrement
 ) {
 }

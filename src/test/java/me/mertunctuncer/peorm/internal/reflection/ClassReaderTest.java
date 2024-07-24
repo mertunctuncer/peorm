@@ -37,14 +37,14 @@ class ClassReaderTest {
 
         assertEquals(id.name(), "no");
         assertTrue(id.primaryKey());
-        assertTrue(id.identity());
+        assertNotNull(id.identity());
         assertTrue(id.nullable());
-        assertEquals(id.identitySeed(), 9);
-        assertEquals(id.identityIncrementAmount(), 2);
+        assertEquals(id.identity().seed(), 9);
+        assertEquals(id.identity().increment(), 2);
 
         assertEquals(count.name(), "count");
-        assertTrue(count.autoIncrement());
-        assertEquals(count.autoIncrementAmount(), 2);
+        assertNotNull(count.autoIncrement());
+        assertEquals(count.autoIncrement().increment(), 2);
         assertFalse(count.nullable());
 
         assertEquals(name.name(), "NAME");
