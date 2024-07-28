@@ -1,10 +1,16 @@
 package me.mertunctuncer.peorm.syntax;
 
-import me.mertunctuncer.peorm.model.TableData;
-import me.mertunctuncer.peorm.query.Query;
+import me.mertunctuncer.peorm.query.*;
 
 public interface SyntaxProvider {
-    String getSyntax(Query query);
-    String provideCreateTableQuery(TableData tableData, boolean ifNotExists);
-    String provideDropTableQuery(TableData tableData, boolean ifNotExists);
+
+    <T> String getSyntax(CreateTableQuery<T> createTableQuery);
+    <T> String getSyntax(DropTableQuery<T> dropTableQuery);
+    <T> String getSyntax(InsertQuery<T> insertQuery);
+    <T> String getSyntax(DeleteQuery<T> deleteQuery);
+    <T> String getSyntax(SelectQuery<T> selectQuery);
+    <T> String getSyntax(UpdateQuery<T> updateQuery);
+    <T> String getSyntax(UpsertQuery<T> upsertQuery);
+
+    String getTypeSyntax(Class<?> clazz);
 }

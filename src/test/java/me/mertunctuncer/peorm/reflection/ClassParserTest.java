@@ -12,23 +12,23 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClassReaderTest {
+class ClassParserTest {
 
     @Test
     void reader_should_throw_npe_if_annotation_is_not_present() {
-        assertThrows(NullPointerException.class, () -> ClassReader.getTableName(Object.class));
-        Assertions.assertDoesNotThrow(() -> ClassReader.getTableName(NamedMockTable.class));
+        assertThrows(NullPointerException.class, () -> ClassParser.getTableName(Object.class));
+        Assertions.assertDoesNotThrow(() -> ClassParser.getTableName(NamedMockTable.class));
     }
 
     @Test
     void table_name_should_be_read_correctly() {
-        assertEquals(ClassReader.getTableName(NamedMockTable.class), "named-mock-table");
-        assertEquals(ClassReader.getTableName(NamelessMockTable.class), "namelessmocktable");
+        assertEquals(ClassParser.getTableName(NamedMockTable.class), "named-mock-table");
+        assertEquals(ClassParser.getTableName(NamelessMockTable.class), "namelessmocktable");
     }
 
     @Test
     void fields_should_be_read_correctly() {
-        List<Pair<Field, ColumnData>> fieldData = ClassReader.mapFields(NamedMockTable.class);
+        List<Pair<Field, ColumnData>> fieldData = ClassParser.mapFields(NamedMockTable.class);
 
         assertEquals(3, fieldData.size());
 

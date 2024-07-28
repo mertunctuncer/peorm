@@ -1,5 +1,7 @@
 package me.mertunctuncer.peorm.db;
 
+import me.mertunctuncer.peorm.model.QueryResult;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ExecutableStatement implements AutoCloseable{
+public class StatementExecutor implements AutoCloseable{
 
     private final String statement;
     private final Connection connection;
@@ -17,14 +19,14 @@ public class ExecutableStatement implements AutoCloseable{
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
 
-    public ExecutableStatement(Connection connection, String statement, List<Object> parameters, boolean hasResult) {
+    public StatementExecutor(Connection connection, String statement, List<Object> parameters, boolean hasResult) {
         this.statement = Objects.requireNonNull(statement, "Statement must not be null");
         this.connection = Objects.requireNonNull(connection, "Connection must not be null");
         this.parameters = parameters;
         this.hasResult = hasResult;
     }
 
-    public RawResult execute() {
+    public QueryResult<List<Object>> execute() {
         try {
             preparedStatement = connection.prepareStatement(statement);
             if(parameters != null) {
@@ -34,19 +36,19 @@ public class ExecutableStatement implements AutoCloseable{
 
             if(hasResult) {
                 resultSet = preparedStatement.executeQuery();
-                return RawResult.success(asList(resultSet, parameters != null ? parameters.size() : 0));
+                return new QueryResult<>(asList(resultSet, parameters != null ? parameters.size() : 0));
             } else {
                 preparedStatement.executeUpdate();
-                return RawResult.success();
+                return new QueryResult<>(true);
             }
         } catch (SQLException e) {
-            return RawResult.fail(e);
-            // TODO LOGGING MAYBE?
+            return new QueryResult<>(e);
         }
     }
 
-    private static List<List<Object>> asList(ResultSet resultSet, int count) throws SQLException {
+    private List<List<Object>> asList(ResultSet resultSet, int count) throws SQLException {
         List<List<Object>> results = new ArrayList<>();
+
         while(resultSet.next()) {
             results.add(new ArrayList<>());
             for(int i = 1; i <= count; i++) {

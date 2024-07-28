@@ -1,10 +1,20 @@
 package me.mertunctuncer.peorm.query;
 
+import me.mertunctuncer.peorm.model.TableData;
+
 import java.util.List;
 
-public interface Query {
+public sealed interface Query<T>
+        permits CreateTableQuery,
+        DropTableQuery,
+        InsertQuery,
+        SelectQuery,
+        UpdateQuery,
+        DeleteQuery,
+        UpsertQuery
+{
 
+    TableData<T> getTableData();
     List<Object> getParameters();
     boolean isFetching();
-    String asString();
 }
