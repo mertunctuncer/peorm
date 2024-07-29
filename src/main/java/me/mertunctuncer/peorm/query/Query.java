@@ -2,8 +2,6 @@ package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.TableData;
 
-import java.util.List;
-
 public sealed interface Query<T>
         permits CreateTableQuery,
         DropTableQuery,
@@ -14,5 +12,4 @@ public sealed interface Query<T>
         UpsertQuery
 {
     TableData<T> tableData();
-    List<Object> getParameters();
 }

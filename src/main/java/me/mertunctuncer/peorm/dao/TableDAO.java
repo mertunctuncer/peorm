@@ -40,7 +40,7 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     @Override
     public boolean fetchExists() {
         return databaseController
-                .fetchTableExists(tableData.name());
+                .tableExists(tableData.name());
     }
 
     @Override

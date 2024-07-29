@@ -51,6 +51,9 @@ public class ClassParser<T> {
         return new TableData<>(getTableName(), getColumnData());
     }
 
+    public Map<String, Field> getFields() {
+        return Collections.unmodifiableMap(fields);
+    }
 
     public List<ColumnData> getColumnData() {
         return fields.values().stream().filter(field -> field.isAnnotationPresent(Column.class)).map(field -> {

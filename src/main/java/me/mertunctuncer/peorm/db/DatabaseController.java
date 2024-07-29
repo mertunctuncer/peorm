@@ -1,5 +1,7 @@
 package me.mertunctuncer.peorm.db;
 
+import me.mertunctuncer.peorm.dao.TableAccessProvider;
+import me.mertunctuncer.peorm.dao.TableDAO;
 import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
@@ -11,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 public final class DatabaseController implements AutoCloseable{
@@ -18,6 +21,7 @@ public final class DatabaseController implements AutoCloseable{
     private final ConnectionSource connectionSource;
     private final SyntaxProvider syntaxProvider;
     private final ExecutorService executorService;
+    private final Map<Class<?>, TableAccessProvider<?>> tableAccessProviders = new ConcurrentHashMap<>();
 
     public DatabaseController(
             ConnectionSource connectionSource,
@@ -27,6 +31,17 @@ public final class DatabaseController implements AutoCloseable{
         this.connectionSource = connectionSource;
         this.syntaxProvider = syntaxProvider;
         this.executorService = executorService;
+    }
+
+    public <T> TableAccessProvider<T> createAccessProvider(Class<T> tableClass, T defaultValueProvider) {
+        if(tableAccessProviders.containsKey(tableClass)) return (TableAccessProvider<T>) tableAccessProviders.get(tableClass);
+
+        TableDAO<T> tableDAO = null;
+        if(defaultValueProvider != null ) new TableDAO<>(this, tableClass, defaultValueProvider);
+        else new TableDAO<>(this, tableClass);
+
+        tableAccessProviders.put(tableClass, tableDAO);
+        return tableDAO;
     }
 
     public <T> QueryResult execute(Query<T> query) {
@@ -60,7 +75,7 @@ public final class DatabaseController implements AutoCloseable{
         }
     }
 
-    public boolean fetchTableExists(String tableName) {
+    public boolean tableExists(String tableName) {
         Connection connection = null;
         DatabaseMetaData meta;
         ResultSet results = null;

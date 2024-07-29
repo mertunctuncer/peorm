@@ -2,12 +2,5 @@ package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.TableData;
 
-import java.util.List;
 
-public record DropTableQuery<T>(TableData<T> tableData) implements Query<T> {
-
-    @Override
-    public List<Object> getParameters() {
-        return null;
-    }
-}
+public record DropTableQuery<T>(TableData<T> tableData) implements Query<T> { }
