@@ -1,5 +1,6 @@
 package me.mertunctuncer.peorm.db;
 
+import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.syntax.SyntaxProvider;
@@ -9,9 +10,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-public class DatabaseController implements AutoCloseable{
+public final class DatabaseController implements AutoCloseable{
 
     private final ConnectionSource connectionSource;
     private final SyntaxProvider syntaxProvider;
@@ -27,30 +29,34 @@ public class DatabaseController implements AutoCloseable{
         this.executorService = executorService;
     }
 
-    public <T> QueryResult<T> execute(Query<T> query) {
-
-        String syntax = switch (query){
-            case CreateTableQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case DeleteQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case DropTableQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case InsertQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case SelectQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case UpdateQuery<T> q -> getSyntaxProvider().getSyntax(q);
-            case UpsertQuery<T> q -> getSyntaxProvider().getSyntax(q);
-        };
-
+    public <T> QueryResult execute(Query<T> query) {
         try (
                 StatementExecutor statementExecutor = new StatementExecutor(
                         connectionSource.getConnection(),
-                        syntax,
-                        query.getParameters(),
-                        query.isFetching()
+                        syntaxProvider.getSyntax(query),
+                        query.getParameters()
                 )
         ) {
-            QueryResult<List<Object>> rawResults = statementExecutor.execute();
-
+            statementExecutor.execute();
+            return new QueryResult(true);
         } catch (SQLException e) {
-            return new QueryResult<>(false);
+            return new QueryResult(e);
+        }
+    }
+
+    public <T> FetchingQueryResult<Map<String, Object>> fetch(Query<T> query) {
+        try (
+                StatementExecutor statementExecutor = new StatementExecutor(
+                        connectionSource.getConnection(),
+                        syntaxProvider.getSyntax(query),
+                        query.getParameters()
+                )
+        ) {
+            List<Map<String, Object>> result = statementExecutor.fetch();
+
+            return new FetchingQueryResult<>(result);
+        } catch (SQLException e) {
+            return new FetchingQueryResult<>(e);
         }
     }
 
@@ -75,15 +81,7 @@ public class DatabaseController implements AutoCloseable{
     }
 
     public ExecutorService getExecutorService() {
-
-    }
-
-    public ConnectionSource getConnectionSource() {
-        return connectionSource;
-    }
-
-    public SyntaxProvider getSyntaxProvider() {
-        return syntaxProvider;
+        return executorService;
     }
 
     @Override

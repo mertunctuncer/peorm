@@ -4,6 +4,7 @@ import me.mertunctuncer.peorm.db.DatabaseController;
 import me.mertunctuncer.peorm.model.TableData;
 import me.mertunctuncer.peorm.query.CreateTableQuery;
 import me.mertunctuncer.peorm.query.DropTableQuery;
+import me.mertunctuncer.peorm.query.InsertQuery;
 import me.mertunctuncer.peorm.reflection.ClassParser;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
 import me.mertunctuncer.peorm.util.SQLSet;
@@ -79,12 +80,12 @@ public class TableDAO<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean insert(T object) {
-        return false;
+        return databaseController.execute(new InsertQuery<>(object, tableData)).isSuccessful();
     }
 
     @Override
     public CompletableFuture<Boolean> insertAsync(T object) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> insert(object), databaseController.getExecutorService());
     }
 
     @Override

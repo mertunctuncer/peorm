@@ -1,61 +1,51 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.model.QueryResult;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class StatementExecutor implements AutoCloseable{
 
     private final String statement;
     private final Connection connection;
     private final List<Object> parameters;
-    private final boolean hasResult;
-    private PreparedStatement preparedStatement;
-    private ResultSet resultSet;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null;
 
-    public StatementExecutor(Connection connection, String statement, List<Object> parameters, boolean hasResult) {
+    public StatementExecutor(Connection connection, String statement, List<Object> parameters) {
         this.statement = Objects.requireNonNull(statement, "Statement must not be null");
         this.connection = Objects.requireNonNull(connection, "Connection must not be null");
         this.parameters = parameters;
-        this.hasResult = hasResult;
     }
 
-    public QueryResult<List<Object>> execute() {
-        try {
-            preparedStatement = connection.prepareStatement(statement);
-            if(parameters != null) {
-                int index = 1;
-                for(Object param : parameters) preparedStatement.setObject(index++, param);
-            }
-
-            if(hasResult) {
-                resultSet = preparedStatement.executeQuery();
-                return new QueryResult<>(asList(resultSet, parameters != null ? parameters.size() : 0));
-            } else {
-                preparedStatement.executeUpdate();
-                return new QueryResult<>(true);
-            }
-        } catch (SQLException e) {
-            return new QueryResult<>(e);
-        }
+    public void execute() throws SQLException {
+        prepareAndSet();
+        preparedStatement.executeUpdate();
     }
 
-    private List<List<Object>> asList(ResultSet resultSet, int count) throws SQLException {
-        List<List<Object>> results = new ArrayList<>();
+    public List<Map<String, Object>> fetch() throws SQLException {
+        prepareAndSet();
+        resultSet = preparedStatement.executeQuery();
 
+        List<Map<String, Object>> results = new ArrayList<>();
+        int columnCount = preparedStatement.getMetaData().getColumnCount();
         while(resultSet.next()) {
-            results.add(new ArrayList<>());
-            for(int i = 1; i <= count; i++) {
-                results.getLast().add(resultSet.getObject(i));
+            results.add(new HashMap<>());
+            for(int i = 1; i <= columnCount; i++) {
+                results.getLast().put(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
             }
         }
         return results;
+    }
+
+    private void prepareAndSet() throws SQLException {
+        preparedStatement = connection.prepareStatement(statement);
+        if (parameters != null) {
+            int index = 1;
+            for (Object param : parameters) preparedStatement.setObject(index++, param);
+        }
     }
 
     @Override

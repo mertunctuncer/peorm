@@ -13,8 +13,6 @@ public sealed interface Query<T>
         DeleteQuery,
         UpsertQuery
 {
-
-    TableData<T> getTableData();
+    TableData<T> tableData();
     List<Object> getParameters();
-    boolean isFetching();
 }

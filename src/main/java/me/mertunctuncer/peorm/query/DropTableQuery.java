@@ -4,25 +4,10 @@ import me.mertunctuncer.peorm.model.TableData;
 
 import java.util.List;
 
-public final class DropTableQuery<T> implements Query<T> {
-
-    private final TableData<T> tableData;
-    public DropTableQuery(final TableData<T> tableData) {
-        this.tableData = tableData;
-    }
-
-    @Override
-    public TableData<T> getTableData() {
-        return tableData;
-    }
+public record DropTableQuery<T>(TableData<T> tableData) implements Query<T> {
 
     @Override
     public List<Object> getParameters() {
         return null;
-    }
-
-    @Override
-    public boolean isFetching() {
-        return false;
     }
 }
