@@ -2,6 +2,8 @@ package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.TableData;
 
+import java.util.Objects;
+
 
 public final class DropTableQuery<T> implements Query<T> {
 
@@ -21,7 +23,7 @@ public final class DropTableQuery<T> implements Query<T> {
         private final TableData<T> tableData;
 
         public Builder(TableData<T> tableData) {
-            this.tableData = tableData;
+            this.tableData = Objects.requireNonNull(tableData, "Table data must not be null");
         }
 
         public DropTableQuery<T> build() {

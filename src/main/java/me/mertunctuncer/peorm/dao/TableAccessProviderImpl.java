@@ -1,12 +1,10 @@
 package me.mertunctuncer.peorm.dao;
 
 import me.mertunctuncer.peorm.db.DatabaseController;
+import me.mertunctuncer.peorm.model.ColumnData;
 import me.mertunctuncer.peorm.model.ReflectionData;
 import me.mertunctuncer.peorm.model.TableData;
-import me.mertunctuncer.peorm.query.CreateTableQuery;
-import me.mertunctuncer.peorm.query.DropTableQuery;
-import me.mertunctuncer.peorm.query.InsertQuery;
-import me.mertunctuncer.peorm.query.Query;
+import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.reflection.ClassParser;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
@@ -99,58 +97,81 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public CompletableFuture<Boolean> insertAsync(T object) {
-        return CompletableFuture.supplyAsync(() -> insert(object), databaseController.getExecutorService());
+    public CompletableFuture<Boolean> insertAsync(T data) {
+        return CompletableFuture.supplyAsync(() -> insert(data), databaseController.getExecutorService());
     }
 
     @Override
-    public boolean upsert(T object) {
-        return false;
+    public boolean upsert(T data) {
+        Query<T> query = new UpsertQuery.Builder<>(tableData)
+                .setValues(data, reflectionData)
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
-    public CompletableFuture<Boolean> upsertAsync(T object) {
-        return null;
+    public CompletableFuture<Boolean> upsertAsync(T data) {
+        return CompletableFuture.supplyAsync(() -> update(data), databaseController.getExecutorService());
     }
 
     @Override
-    public boolean update(T object) {
-        return false;
+    public boolean update(T data) {
+        Query<T> query = new UpdateQuery.Builder<>(tableData)
+                .setSelectData(data, reflectionData, ColumnData::primaryKey)
+                .setUpdateData(data, reflectionData, columnData -> !columnData.primaryKey())
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
-    public boolean update(T object, IndexedSQLMap where) {
-        return false;
+    public boolean update(T data, IndexedSQLMap where) {
+        Query<T> query = new UpdateQuery.Builder<>(tableData)
+                .setSelectData(where)
+                .setUpdateData(data, reflectionData)
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
-    public boolean update(IndexedSQLMap set, IndexedSQLMap where) {
-        return false;
+    public boolean update(IndexedSQLMap data, IndexedSQLMap where) {
+        Query<T> query = new UpdateQuery.Builder<>(tableData)
+                .setSelectData(where)
+                .setUpdateData(data)
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
-    public CompletableFuture<Boolean> updateAsync(T object) {
-        return null;
+    public CompletableFuture<Boolean> updateAsync(T data) {
+        return CompletableFuture.supplyAsync(() -> update(data), databaseController.getExecutorService());
     }
 
     @Override
-    public CompletableFuture<Boolean> updateAsync(T object, IndexedSQLMap where) {
-        return null;
+    public CompletableFuture<Boolean> updateAsync(T data, IndexedSQLMap where) {
+        return CompletableFuture.supplyAsync(() -> update(data, where), databaseController.getExecutorService());
     }
 
     @Override
-    public CompletableFuture<Boolean> updateAsync(IndexedSQLMap set, IndexedSQLMap where) {
-        return null;
+    public CompletableFuture<Boolean> updateAsync(IndexedSQLMap data, IndexedSQLMap where) {
+        return CompletableFuture.supplyAsync(() -> update(data, where), databaseController.getExecutorService());
     }
 
     @Override
-    public List<T> fetch(T object) {
-        return List.of();
+    public List<T> fetch(T where) {
+        Query<T> query = new SelectQuery.Builder<>(tableData)
+                .setSelectData(where, reflectionData, ColumnData::primaryKey)
+                .build();
+        List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
+        return results.stream().map(instanceFactory::initialize).toList();
     }
 
     @Override
     public List<T> fetch(IndexedSQLMap where) {
-        return List.of();
+        Query<T> query = new SelectQuery.Builder<>(tableData)
+                .setSelectData(where)
+                .build();
+        List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
+        return results.stream().map(instanceFactory::initialize).toList();
     }
 
     @Override

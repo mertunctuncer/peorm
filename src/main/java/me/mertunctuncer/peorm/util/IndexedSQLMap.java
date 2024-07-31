@@ -1,10 +1,45 @@
 package me.mertunctuncer.peorm.util;
 
+import me.mertunctuncer.peorm.model.ColumnData;
+import me.mertunctuncer.peorm.model.ReflectionData;
+import me.mertunctuncer.peorm.model.TableData;
+
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class IndexedSQLMap {
     private final Map<String, Object> data = new HashMap<>();
     private final List<String> index = new ArrayList<>();
+
+    public Object getValueAt(int index) {
+        return data.get(this.index.get(index));
+    }
+
+    public Object getValue(String column) {
+        return data.get(column);
+    }
+
+    public Object getValueOrDefault(String column, Object defaultValue) {
+        return data.getOrDefault(column, defaultValue);
+    }
+
+    public int size() {
+        return index.size();
+    }
+
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+
+    public List<SQLPair> getEntries() {
+        return index.stream().map(column -> new SQLPair(column, data.get(column))).toList();
+    }
+
+    private Object put(String key, Object value) {
+        index.add(key);
+        return data.put(key, value);
+    }
 
     public IndexedSQLMap(SQLPair... pairs) {
         for(SQLPair pair : pairs) {
@@ -18,59 +53,44 @@ public class IndexedSQLMap {
         index.add(pair.getColumn());
     }
 
-    public Object getValueAt(int index) {
-        return data.get(this.index.get(index));
-    }
+    public static final class Factory {
 
-    public Object getValue(String column) {
-        return data.get(column);
-    }
+        public static <T> IndexedSQLMap create(T data, TableData<T> tableData, ReflectionData<T> reflectionData, Predicate<ColumnData> columnFilter) {
+            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
 
-    public Object put(String key, Object value) {
-        index.add(key);
-        return data.put(key, value);
-    }
+            for(ColumnData columnData : tableData.columns()) {
+                if(!columnFilter.test(columnData)) continue;
 
-    public Object remove(String column) {
-        index.remove(column);
-        return data.remove(column);
-    }
+                Field field = reflectionData.getColumnFieldMap().get(columnData.name());
+                try {
+                    indexedSQLMap.put(columnData.name(), field.get(data));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return indexedSQLMap;
+        }
+        public static <T> IndexedSQLMap create(T data, TableData<T> tableData, ReflectionData<T> reflectionData) {
+            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
 
-    public void putAll(Map<? extends String, ?> m) {
-        data.putAll(m);
-        index.addAll(m.keySet());
-    }
+            for(ColumnData columnData : tableData.columns()) {
+                Field field = reflectionData.getColumnFieldMap().get(columnData.name());
+                try {
+                    indexedSQLMap.put(columnData.name(), field.get(data));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-    public void clear() {
-        data.clear();
-        index.clear();
-    }
+            return indexedSQLMap;
+        }
 
-    public int size() {
-        return index.size();
-    }
+        public static IndexedSQLMap of(SQLPair pair) {
+            return new IndexedSQLMap(pair);
+        }
 
-    public boolean isEmpty() {
-        return data.isEmpty();
-    }
-
-    public boolean containsColumn(String column) {
-        return data.containsKey(column);
-    }
-
-    public boolean containsValue(Object value) {
-        return data.containsValue(value);
-    }
-
-    public List<String> columnList() {
-        return Collections.unmodifiableList(index);
-    }
-
-    public List<Object> values() {
-        return index.stream().map(data::get).toList();
-    }
-
-    public List<SQLPair> getEntries() {
-        return index.stream().map(column -> new SQLPair(column, data.get(column))).toList();
+        public static IndexedSQLMap of(SQLPair... pairs) {
+            return new IndexedSQLMap(pairs);
+        }
     }
 }

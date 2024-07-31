@@ -6,6 +6,7 @@ import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.syntax.SyntaxProvider;
+import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -59,7 +60,7 @@ public final class DatabaseController implements AutoCloseable{
         }
     }
 
-    public <T> FetchingQueryResult<Map<String, Object>> fetch(Query<T> query) {
+    public <T> FetchingQueryResult<IndexedSQLMap> fetch(Query<T> query) {
         try (
                 StatementExecutor statementExecutor = new StatementExecutor(
                         connectionSource.getConnection(),

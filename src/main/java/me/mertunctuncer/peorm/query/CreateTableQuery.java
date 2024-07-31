@@ -2,6 +2,8 @@ package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.TableData;
 
+import java.util.Objects;
+
 public final class CreateTableQuery<T> implements Query<T> {
     private final TableData<T> tableData;
     private final boolean ifNotExists;
@@ -26,7 +28,7 @@ public final class CreateTableQuery<T> implements Query<T> {
         private boolean ifNotExists = false;
 
         public Builder(TableData<T> tableData) {
-            this.tableData = tableData;
+            this.tableData = Objects.requireNonNull(tableData, "Table data must not be null");
         }
 
         public Builder<T> setIfNotExists(boolean ifNotExists) {

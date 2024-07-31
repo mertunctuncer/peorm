@@ -1,6 +1,7 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.model.ReflectionData;
+import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,36 +20,50 @@ public class InstanceFactory<T> {
         this.defaults = defaults;
     }
 
-    public T initializeDefault() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public T initializeDefault() {
+
         T instance = initializeEmpty();
 
         for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
             Field field = entry.getValue();
             Object value = defaults.get(field);
-            field.set(instance, value);
+            try {
+                field.set(instance, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
         return instance;
     }
 
-    public T initialize(Map<String, Object> fieldValueOverrides)
-            throws IllegalAccessException,
-            InvocationTargetException,
-            NoSuchMethodException,
-            InstantiationException
-    {
+    public T initialize(IndexedSQLMap fieldValueOverrides) {
         Objects.requireNonNull(fieldValueOverrides, "Overrides must not be null");
 
         T instance = initializeEmpty();
 
         for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
             Field field = entry.getValue();
-            Object value = fieldValueOverrides.getOrDefault(entry.getKey(), defaults.get(field));
-            field.set(instance, value);
+            Object value = fieldValueOverrides.getValueOrDefault(entry.getKey(), defaults.get(field)) ;
+            try {
+                field.set(instance, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return instance;
     }
-    public T initializeEmpty() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return clazz.getDeclaredConstructor().newInstance();
+
+    public T initializeEmpty() {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (
+                InstantiationException |
+                IllegalAccessException |
+                InvocationTargetException |
+                NoSuchMethodException e
+        ) {
+            throw new RuntimeException(e);
+        }
     }
 }
