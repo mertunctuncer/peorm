@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.util;
 
-public class SQLDataPair extends Pair<String, Object>{
-    public SQLDataPair(String column, Object value) {
+public class SQLPair extends Pair<String, Object> {
+    public SQLPair(String column, Object value) {
         super(column, value);
     }
 

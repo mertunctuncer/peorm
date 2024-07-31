@@ -11,5 +11,5 @@ public sealed interface Query<T>
         DeleteQuery,
         UpsertQuery
 {
-    TableData<T> tableData();
+    TableData<T> getTableData();
 }

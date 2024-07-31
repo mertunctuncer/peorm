@@ -1,6 +1,7 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.annotation.*;
+import me.mertunctuncer.peorm.model.ReflectionData;
 import me.mertunctuncer.peorm.model.TableData;
 import me.mertunctuncer.peorm.model.ColumnData;
 
@@ -15,11 +16,6 @@ public class ClassParser<T> {
     private final Map<Field, Object> defaults = new HashMap<>();
 
 
-    public ClassParser(final Class<T> clazz, T defaultProvider) {
-        this(clazz);
-        useDefaultsFrom(defaultProvider);
-    }
-
     public ClassParser(final Class<T> clazz) {
         this.clazz = Objects.requireNonNull(clazz);
 
@@ -33,7 +29,7 @@ public class ClassParser<T> {
         });
     }
 
-    public ClassParser<T> useDefaultsFrom(T defaultProvider) {
+    public ClassParser<T> setDefaults(T defaultProvider) {
         Objects.requireNonNull(defaultProvider);
         fields.values().forEach(field -> {
             field.setAccessible(true);
@@ -50,11 +46,6 @@ public class ClassParser<T> {
     public TableData<T> getTableData() {
         return new TableData<>(getTableName(), getColumnData());
     }
-
-    public Map<String, Field> getFields() {
-        return Collections.unmodifiableMap(fields);
-    }
-
     public List<ColumnData> getColumnData() {
         return fields.values().stream().filter(field -> field.isAnnotationPresent(Column.class)).map(field -> {
             Column column = field.getAnnotation(Column.class);
@@ -93,8 +84,12 @@ public class ClassParser<T> {
         return table.name().isEmpty() ? clazz.getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
     }
 
+    public ReflectionData<T> getReflectionData() {
+        return new ReflectionData<>(clazz, fields);
+    }
+
     public InstanceFactory<T> createInstanceFactory() {
-        return new InstanceFactory<>(clazz, fields, defaults);
+        return new InstanceFactory<>(getReflectionData(), defaults);
     }
 }
 

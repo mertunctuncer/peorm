@@ -1,5 +1,7 @@
 package me.mertunctuncer.peorm.db;
 
+import me.mertunctuncer.peorm.util.IndexedSQLMap;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,14 +27,15 @@ public class StatementExecutor implements AutoCloseable{
         preparedStatement.executeUpdate();
     }
 
-    public List<Map<String, Object>> fetch() throws SQLException {
+    public List<IndexedSQLMap> fetch() throws SQLException {
         prepareAndSet();
         resultSet = preparedStatement.executeQuery();
 
-        List<Map<String, Object>> results = new ArrayList<>();
+        List<IndexedSQLMap> results = new ArrayList<>();
+
         int columnCount = preparedStatement.getMetaData().getColumnCount();
         while(resultSet.next()) {
-            results.add(new HashMap<>());
+            results.add(new IndexedSQLMap());
             for(int i = 1; i <= columnCount; i++) {
                 results.getLast().put(resultSet.getMetaData().getColumnName(i), resultSet.getObject(i));
             }

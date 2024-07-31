@@ -1,39 +1,43 @@
 package me.mertunctuncer.peorm.dao;
 
 import me.mertunctuncer.peorm.db.DatabaseController;
+import me.mertunctuncer.peorm.model.ReflectionData;
 import me.mertunctuncer.peorm.model.TableData;
 import me.mertunctuncer.peorm.query.CreateTableQuery;
 import me.mertunctuncer.peorm.query.DropTableQuery;
 import me.mertunctuncer.peorm.query.InsertQuery;
+import me.mertunctuncer.peorm.query.Query;
 import me.mertunctuncer.peorm.reflection.ClassParser;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
-import me.mertunctuncer.peorm.util.SQLSet;
+import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class TableDAO<T> implements TableAccessProvider<T> {
+public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     private final DatabaseController databaseController;
+    private final ReflectionData<T> reflectionData;
     private final InstanceFactory<T> instanceFactory;
     private final TableData<T> tableData;
 
 
-    public TableDAO(DatabaseController databaseController, Class<T> clazz) {
+    public TableAccessProviderImpl(DatabaseController databaseController, Class<T> clazz) {
         this(databaseController, clazz, null);
     }
 
-    public TableDAO(
+    public TableAccessProviderImpl(
             DatabaseController databaseController,
             Class<T> clazz,
             T instance
     ) {
         ClassParser<T> parser = new ClassParser<>(clazz);
 
-        if(instance != null) parser.useDefaultsFrom(instance);
+        if(instance != null) parser.setDefaults(instance);
 
         this.databaseController = databaseController;
         this.tableData = parser.getTableData();
+        this.reflectionData = parser.getReflectionData();
         this.instanceFactory = parser.createInstanceFactory();
     }
 
@@ -50,12 +54,18 @@ public class TableDAO<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean create() {
-        return databaseController.execute(new CreateTableQuery<>(tableData, false)).isSuccessful();
+        Query<T> query = new CreateTableQuery.Builder<>(tableData)
+                .setIfNotExists(false)
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
     public boolean create(boolean ifNotExists) {
-        return databaseController.execute(new CreateTableQuery<>(tableData, ifNotExists)).isSuccessful();
+        Query<T> query = new CreateTableQuery.Builder<>(tableData)
+                .setIfNotExists(ifNotExists)
+                .build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
@@ -70,7 +80,8 @@ public class TableDAO<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean drop() {
-        return databaseController.execute(new DropTableQuery<>(tableData)).isSuccessful();
+        Query<T> query = new DropTableQuery<>.Builder<>(tableData).build();
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
@@ -79,8 +90,12 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public boolean insert(T object) {
-        return databaseController.execute(new InsertQuery<>(object, tableData)).isSuccessful();
+    public boolean insert(T data) {
+        Query<T> query = new InsertQuery.Builder<>(tableData)
+                .setValues(data, reflectionData)
+                .build();
+
+        return databaseController.execute(query).isSuccessful();
     }
 
     @Override
@@ -104,12 +119,12 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public boolean update(T object, SQLSet where) {
+    public boolean update(T object, IndexedSQLMap where) {
         return false;
     }
 
     @Override
-    public boolean update(SQLSet set, SQLSet where) {
+    public boolean update(IndexedSQLMap set, IndexedSQLMap where) {
         return false;
     }
 
@@ -119,12 +134,12 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public CompletableFuture<Boolean> updateAsync(T object, SQLSet where) {
+    public CompletableFuture<Boolean> updateAsync(T object, IndexedSQLMap where) {
         return null;
     }
 
     @Override
-    public CompletableFuture<Boolean> updateAsync(SQLSet set, SQLSet where) {
+    public CompletableFuture<Boolean> updateAsync(IndexedSQLMap set, IndexedSQLMap where) {
         return null;
     }
 
@@ -134,7 +149,7 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public List<T> fetch(SQLSet where) {
+    public List<T> fetch(IndexedSQLMap where) {
         return List.of();
     }
 
@@ -149,7 +164,7 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public CompletableFuture<List<T>> fetchAsync(SQLSet where) {
+    public CompletableFuture<List<T>> fetchAsync(IndexedSQLMap where) {
         return null;
     }
 
@@ -164,7 +179,7 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public boolean delete(SQLSet where) {
+    public boolean delete(IndexedSQLMap where) {
         return false;
     }
 
@@ -179,7 +194,7 @@ public class TableDAO<T> implements TableAccessProvider<T> {
     }
 
     @Override
-    public CompletableFuture<Boolean> deleteAsync(SQLSet where) {
+    public CompletableFuture<Boolean> deleteAsync(IndexedSQLMap where) {
         return null;
     }
 

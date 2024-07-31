@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.db;
 
 import me.mertunctuncer.peorm.dao.TableAccessProvider;
-import me.mertunctuncer.peorm.dao.TableDAO;
+import me.mertunctuncer.peorm.dao.TableAccessProviderImpl;
 import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
@@ -36,12 +36,12 @@ public final class DatabaseController implements AutoCloseable{
     public <T> TableAccessProvider<T> createAccessProvider(Class<T> tableClass, T defaultValueProvider) {
         if(tableAccessProviders.containsKey(tableClass)) return (TableAccessProvider<T>) tableAccessProviders.get(tableClass);
 
-        TableDAO<T> tableDAO = null;
-        if(defaultValueProvider != null ) new TableDAO<>(this, tableClass, defaultValueProvider);
-        else new TableDAO<>(this, tableClass);
+        TableAccessProviderImpl<T> tableAccessProviderImpl = null;
+        if(defaultValueProvider != null ) new TableAccessProviderImpl<>(this, tableClass, defaultValueProvider);
+        else new TableAccessProviderImpl<>(this, tableClass);
 
-        tableAccessProviders.put(tableClass, tableDAO);
-        return tableDAO;
+        tableAccessProviders.put(tableClass, tableAccessProviderImpl);
+        return tableAccessProviderImpl;
     }
 
     public <T> QueryResult execute(Query<T> query) {

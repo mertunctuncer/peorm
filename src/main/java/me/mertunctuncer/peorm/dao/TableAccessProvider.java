@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.dao;
 
-import me.mertunctuncer.peorm.util.SQLSet;
+import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,26 +25,26 @@ public interface TableAccessProvider <T> {
     CompletableFuture<Boolean> upsertAsync(T object);
 
     boolean update(T object);
-    boolean update(T object, SQLSet where);
-    boolean update(SQLSet set, SQLSet where);
+    boolean update(T object, IndexedSQLMap where);
+    boolean update(IndexedSQLMap set, IndexedSQLMap where);
 
     CompletableFuture<Boolean> updateAsync(T object);
-    CompletableFuture<Boolean> updateAsync(T object, SQLSet where);
-    CompletableFuture<Boolean> updateAsync(SQLSet set, SQLSet where);
+    CompletableFuture<Boolean> updateAsync(T object, IndexedSQLMap where);
+    CompletableFuture<Boolean> updateAsync(IndexedSQLMap set, IndexedSQLMap where);
 
     List<T> fetch(T object);
-    List<T> fetch(SQLSet where);
+    List<T> fetch(IndexedSQLMap where);
     List<T> fetchAll();
 
     CompletableFuture<List<T>> fetchAsync(T object);
-    CompletableFuture<List<T>> fetchAsync(SQLSet where);
+    CompletableFuture<List<T>> fetchAsync(IndexedSQLMap where);
     CompletableFuture<List<T>> fetchAllAsync();
 
     boolean delete(T object);
-    boolean delete(SQLSet where);
+    boolean delete(IndexedSQLMap where);
     boolean deleteAll();
 
     CompletableFuture<Boolean> deleteAsync(T object);
-    CompletableFuture<Boolean> deleteAsync(SQLSet where);
+    CompletableFuture<Boolean> deleteAsync(IndexedSQLMap where);
     CompletableFuture<Boolean> deleteAllAsync();
 }
