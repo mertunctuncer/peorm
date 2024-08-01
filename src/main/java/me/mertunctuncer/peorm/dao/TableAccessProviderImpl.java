@@ -181,7 +181,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
     @Override
     public List<T> fetchAll() {
         Query<T> query = new SelectQuery.Builder<>(tableData)
-                .fetchAll()
+                .fetchAll(true)
                 .build();
         List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
         return results.stream().map(instanceFactory::initialize).toList();
