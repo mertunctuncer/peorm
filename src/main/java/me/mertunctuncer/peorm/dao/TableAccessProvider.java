@@ -18,33 +18,33 @@ public interface TableAccessProvider <T> {
     boolean drop();
     CompletableFuture<Boolean> dropAsync();
 
-    boolean insert(T object);
-    CompletableFuture<Boolean> insertAsync(T object);
+    boolean insert(T data);
+    CompletableFuture<Boolean> insertAsync(T data);
 
-    boolean upsert(T object);
-    CompletableFuture<Boolean> upsertAsync(T object);
+    boolean upsert(T data);
+    CompletableFuture<Boolean> upsertAsync(T data);
 
-    boolean update(T object);
-    boolean update(T object, IndexedSQLMap where);
-    boolean update(IndexedSQLMap set, IndexedSQLMap where);
+    boolean update(T data);
+    boolean update(T data, IndexedSQLMap where);
+    boolean update(IndexedSQLMap data, IndexedSQLMap where);
 
-    CompletableFuture<Boolean> updateAsync(T object);
-    CompletableFuture<Boolean> updateAsync(T object, IndexedSQLMap where);
-    CompletableFuture<Boolean> updateAsync(IndexedSQLMap set, IndexedSQLMap where);
+    CompletableFuture<Boolean> updateAsync(T data);
+    CompletableFuture<Boolean> updateAsync(T data, IndexedSQLMap where);
+    CompletableFuture<Boolean> updateAsync(IndexedSQLMap data, IndexedSQLMap where);
 
-    List<T> fetch(T object);
+    List<T> fetch(T where);
     List<T> fetch(IndexedSQLMap where);
     List<T> fetchAll();
 
-    CompletableFuture<List<T>> fetchAsync(T object);
+    CompletableFuture<List<T>> fetchAsync(T where);
     CompletableFuture<List<T>> fetchAsync(IndexedSQLMap where);
     CompletableFuture<List<T>> fetchAllAsync();
 
-    boolean delete(T object);
+    boolean delete(T where);
     boolean delete(IndexedSQLMap where);
     boolean deleteAll();
 
-    CompletableFuture<Boolean> deleteAsync(T object);
+    CompletableFuture<Boolean> deleteAsync(T where);
     CompletableFuture<Boolean> deleteAsync(IndexedSQLMap where);
     CompletableFuture<Boolean> deleteAllAsync();
 }

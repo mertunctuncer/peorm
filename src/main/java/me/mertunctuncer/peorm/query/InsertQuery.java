@@ -11,11 +11,11 @@ import java.util.Objects;
 public final class InsertQuery<T> implements Query<T> {
 
     private final TableData<T> tableData;
-    private final IndexedSQLMap queryData;
+    private final IndexedSQLMap rowData;
 
-    private InsertQuery(TableData<T> tableData, IndexedSQLMap queryData) {
+    private InsertQuery(TableData<T> tableData, IndexedSQLMap rowData) {
         this.tableData = tableData;
-        this.queryData = queryData;
+        this.rowData = rowData;
     }
 
     @Override
@@ -23,31 +23,31 @@ public final class InsertQuery<T> implements Query<T> {
         return tableData;
     }
 
-    public IndexedSQLMap getQueryData() {
-        return queryData;
+    public IndexedSQLMap getRowData() {
+        return rowData;
     }
 
     public static final class Builder<T> {
 
         private final TableData<T> tableData;
-        private IndexedSQLMap values;
+        private IndexedSQLMap rowData;
 
         public Builder(TableData<T> tableData) {
             this.tableData = Objects.requireNonNull(tableData, "Table data must not be null");
         }
 
-        public Builder<T> setValues(T values, ReflectionData<T> reflectionData) {
-            this.values = IndexedSQLMap.Factory.create(values, tableData, reflectionData, columnData -> columnData.autoIncrement() != null);
+        public Builder<T> rowData(T values, ReflectionData<T> reflectionData) {
+            this.rowData = IndexedSQLMap.Factory.create(values, tableData, reflectionData, columnData -> columnData.autoIncrement() != null);
             return this;
         }
 
-        public Builder<T> setValues(IndexedSQLMap values) {
-            this.values = values;
+        public Builder<T> rowData(IndexedSQLMap values) {
+            this.rowData = values;
             return this;
         }
 
         public InsertQuery<T> build() {
-            return new InsertQuery<>(tableData, Objects.requireNonNull(values, "Values must be set"));
+            return new InsertQuery<>(tableData, Objects.requireNonNull(rowData, "Values must be set"));
         }
     }
 }

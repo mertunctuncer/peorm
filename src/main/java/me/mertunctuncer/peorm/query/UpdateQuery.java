@@ -12,13 +12,13 @@ import java.util.function.Predicate;
 public final class UpdateQuery<T> implements Query<T> {
 
     private final TableData<T> tableData;
-    private final IndexedSQLMap selectData;
+    private final IndexedSQLMap where;
     private final IndexedSQLMap updateData;
 
-    private UpdateQuery(TableData<T> tableData, IndexedSQLMap selectData, IndexedSQLMap updateData) {
+    private UpdateQuery(TableData<T> tableData, IndexedSQLMap where, IndexedSQLMap rowData) {
         this.tableData = tableData;
-        this.selectData = selectData;
-        this.updateData = updateData;
+        this.where = where;
+        this.updateData = rowData;
     }
 
     @Override
@@ -26,11 +26,11 @@ public final class UpdateQuery<T> implements Query<T> {
         return tableData;
     }
 
-    public IndexedSQLMap getSelectData() {
-        return selectData;
+    public IndexedSQLMap getWhereData() {
+        return where;
     }
 
-    public IndexedSQLMap getUpdateData() {
+    public IndexedSQLMap getRowData() {
         return updateData;
     }
 
@@ -45,33 +45,33 @@ public final class UpdateQuery<T> implements Query<T> {
             this.tableData = tableData;
         }
 
-        public UpdateQuery.Builder<T> setSelectData(T select, ReflectionData<T> reflectionData) {
-            this.selectData = IndexedSQLMap.Factory.create(select, tableData, reflectionData);
+        public UpdateQuery.Builder<T> where(T where, ReflectionData<T> reflectionData) {
+            this.selectData = IndexedSQLMap.Factory.create(where, tableData, reflectionData);
             return this;
         }
 
-        public UpdateQuery.Builder<T> setSelectData(T select, ReflectionData<T> reflectionData, Predicate<ColumnData> allowFilter) {
-            this.selectData = IndexedSQLMap.Factory.create(select, tableData, reflectionData, allowFilter);
+        public UpdateQuery.Builder<T> where(T where, ReflectionData<T> reflectionData, Predicate<ColumnData> allowFilter) {
+            this.selectData = IndexedSQLMap.Factory.create(where, tableData, reflectionData, allowFilter);
             return this;
         }
 
-        public UpdateQuery.Builder<T> setSelectData(IndexedSQLMap selectData) {
-            this.selectData = selectData;
+        public UpdateQuery.Builder<T> where(IndexedSQLMap where) {
+            this.selectData = where;
             return this;
         }
 
-        public UpdateQuery.Builder<T> setUpdateData(T update, ReflectionData<T> reflectionData) {
-            this.updateData = IndexedSQLMap.Factory.create(update, tableData, reflectionData);
+        public UpdateQuery.Builder<T> rowData(T rowData, ReflectionData<T> reflectionData) {
+            this.updateData = IndexedSQLMap.Factory.create(rowData, tableData, reflectionData);
             return this;
         }
 
-        public UpdateQuery.Builder<T> setUpdateData(T update, ReflectionData<T> reflectionData, Predicate<ColumnData> allowFilter) {
-            this.updateData = IndexedSQLMap.Factory.create(update, tableData, reflectionData, allowFilter);
+        public UpdateQuery.Builder<T> rowData(T rowData, ReflectionData<T> reflectionData, Predicate<ColumnData> allowFilter) {
+            this.updateData = IndexedSQLMap.Factory.create(rowData, tableData, reflectionData, allowFilter);
             return this;
         }
 
-        public UpdateQuery.Builder<T> setUpdateData(IndexedSQLMap updateData) {
-            this.updateData = updateData;
+        public UpdateQuery.Builder<T> rowData(IndexedSQLMap rowData) {
+            this.updateData = rowData;
             return this;
         }
 

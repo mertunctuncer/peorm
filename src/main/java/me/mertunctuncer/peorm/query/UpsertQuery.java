@@ -8,11 +8,11 @@ import me.mertunctuncer.peorm.util.IndexedSQLMap;
 public final class UpsertQuery<T> implements Query<T> {
 
     private final TableData<T> tableData;
-    private final IndexedSQLMap queryData;
+    private final IndexedSQLMap rowData;
 
-    private UpsertQuery(TableData<T> tableData, IndexedSQLMap queryData) {
+    private UpsertQuery(TableData<T> tableData, IndexedSQLMap rowData) {
         this.tableData = tableData;
-        this.queryData = queryData;
+        this.rowData = rowData;
     }
 
     @Override
@@ -20,8 +20,8 @@ public final class UpsertQuery<T> implements Query<T> {
         return tableData;
     }
 
-    public IndexedSQLMap getQueryData() {
-        return queryData;
+    public IndexedSQLMap getRowData() {
+        return rowData;
     }
 
     public static final class Builder<T> {
@@ -33,13 +33,13 @@ public final class UpsertQuery<T> implements Query<T> {
             this.tableData = tableData;
         }
 
-        public UpsertQuery.Builder<T> setValues(T values, ReflectionData<T> reflectionData) {
-            this.values = IndexedSQLMap.Factory.create(values, tableData, reflectionData);
+        public UpsertQuery.Builder<T> rowData(T rowData, ReflectionData<T> reflectionData) {
+            this.values = IndexedSQLMap.Factory.create(rowData, tableData, reflectionData);
             return this;
         }
 
-        public UpsertQuery.Builder<T> setValues(IndexedSQLMap values) {
-            this.values = values;
+        public UpsertQuery.Builder<T> rowData(IndexedSQLMap rowData) {
+            this.values = rowData;
             return this;
         }
 
