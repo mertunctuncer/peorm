@@ -5,7 +5,6 @@ import me.mertunctuncer.peorm.model.ColumnData;
 import me.mertunctuncer.peorm.model.ReflectionData;
 import me.mertunctuncer.peorm.model.TableData;
 import me.mertunctuncer.peorm.query.*;
-import me.mertunctuncer.peorm.reflection.ClassParser;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
+public class DAOImpl<T> implements DAO<T> {
 
     private final DatabaseController databaseController;
     private final ExecutorService executorService;
@@ -21,32 +20,24 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
     private final InstanceFactory<T> instanceFactory;
     private final TableData<T> tableData;
 
-
-    public TableAccessProviderImpl(DatabaseController databaseController, Class<T> clazz, ExecutorService executorService) {
-        this(databaseController, clazz, executorService, null);
-    }
-
-    public TableAccessProviderImpl(
+    DAOImpl(
+            TableData<T> tableData,
             DatabaseController databaseController,
-            Class<T> clazz,
             ExecutorService executorService,
-            T instance
+            ReflectionData<T> reflectionData,
+            InstanceFactory<T> instanceFactory
     ) {
-        ClassParser<T> parser = new ClassParser<>(clazz);
-
-        if(instance != null) parser.setDefaults(instance);
-
+        this.tableData = tableData;
         this.databaseController = databaseController;
-        this.tableData = parser.getTableData();
-        this.reflectionData = parser.getReflectionData();
         this.executorService = executorService;
-        this.instanceFactory = parser.createInstanceFactory();
+        this.reflectionData = reflectionData;
+        this.instanceFactory = instanceFactory;
     }
+
 
     @Override
     public boolean fetchExists() {
-        return databaseController
-                .tableExists(tableData.name());
+        return databaseController.fetchTableExists(tableData.name()).isSuccessful();
     }
 
     @Override
@@ -240,5 +231,10 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
     @Override
     public CompletableFuture<Boolean> deleteAllAsync() {
         return CompletableFuture.supplyAsync(this::deleteAll, executorService);
+    }
+
+    @Override
+    public void close() {
+        executorService.close();
     }
 }

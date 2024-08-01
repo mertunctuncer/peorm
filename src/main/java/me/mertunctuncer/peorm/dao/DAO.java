@@ -5,7 +5,7 @@ import me.mertunctuncer.peorm.util.IndexedSQLMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface TableAccessProvider <T> {
+public interface DAO<T> extends AutoCloseable{
 
     boolean fetchExists();
     CompletableFuture<Boolean> fetchExistsAsync();
@@ -47,4 +47,6 @@ public interface TableAccessProvider <T> {
     CompletableFuture<Boolean> deleteAsync(T where);
     CompletableFuture<Boolean> deleteAsync(IndexedSQLMap where);
     CompletableFuture<Boolean> deleteAllAsync();
+
+
 }

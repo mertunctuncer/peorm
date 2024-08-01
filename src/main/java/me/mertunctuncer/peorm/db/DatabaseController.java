@@ -1,28 +1,24 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.dao.TableAccessProvider;
-import me.mertunctuncer.peorm.dao.TableAccessProviderImpl;
-import me.mertunctuncer.peorm.model.FetchingQueryResult;
-import me.mertunctuncer.peorm.query.*;
+import me.mertunctuncer.peorm.dao.DAO;
+import me.mertunctuncer.peorm.dao.DAOBuilder;
 import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.syntax.SyntaxProvider;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
-public final class DatabaseController implements AutoCloseable{
+public abstract class DatabaseController implements AutoCloseable {
 
     private final ConnectionSource connectionSource;
     private final SyntaxProvider syntaxProvider;
-    private final ExecutorService executorService;
-    private final Map<Class<?>, TableAccessProvider<?>> tableAccessProviders = new ConcurrentHashMap<>();
+    private ExecutorService executorService = null;
+    private final Map<Class<?>, DAO<?>> tableAccessProviders = new ConcurrentHashMap<>();
 
     public DatabaseController(
             ConnectionSource connectionSource,
@@ -34,49 +30,24 @@ public final class DatabaseController implements AutoCloseable{
         this.executorService = executorService;
     }
 
-    public <T> TableAccessProvider<T> createAccessProvider(Class<T> tableClass, T defaultValueProvider) {
-        if(tableAccessProviders.containsKey(tableClass)) return (TableAccessProvider<T>) tableAccessProviders.get(tableClass);
-
-        TableAccessProviderImpl<T> tableAccessProviderImpl = null;
-        if(defaultValueProvider != null ) new TableAccessProviderImpl<>(this, tableClass, defaultValueProvider);
-        else new TableAccessProviderImpl<>(this, tableClass);
-
-        tableAccessProviders.put(tableClass, tableAccessProviderImpl);
-        return tableAccessProviderImpl;
+    public <T> DAO<T> createDAO(Class<T> clazz, T defaults) {
+        DAOBuilder<T> daoBuilder = new DAOBuilder<>(clazz, this);
+        if(defaults != null) daoBuilder.setDefaults(defaults);
+        return daoBuilder.build();
     }
 
-    public <T> QueryResult execute(Query<T> query) {
-        try (
-                StatementExecutor statementExecutor = new StatementExecutor(
-                        connectionSource.getConnection(),
-                        syntaxProvider.getSyntax(query),
-                        query.getParameters()
-                )
-        ) {
-            statementExecutor.execute();
-            return new QueryResult(true);
-        } catch (SQLException e) {
-            return new QueryResult(e);
-        }
+    public <T> DAO<T> getDAO(Class<T> clazz) {
+        return (DAO<T>) tableAccessProviders.get(clazz);
     }
 
-    public <T> FetchingQueryResult<IndexedSQLMap> fetch(Query<T> query) {
-        try (
-                StatementExecutor statementExecutor = new StatementExecutor(
-                        connectionSource.getConnection(),
-                        syntaxProvider.getSyntax(query),
-                        query.getParameters()
-                )
-        ) {
-            List<Map<String, Object>> result = statementExecutor.fetch();
-
-            return new FetchingQueryResult<>(result);
-        } catch (SQLException e) {
-            return new FetchingQueryResult<>(e);
-        }
+    public <T> void register(Class<T> clazz,DAO<T> dao) {
+        tableAccessProviders.put(clazz, dao);
     }
 
-    public boolean tableExists(String tableName) {
+
+    public abstract ExecutorService getExecutor();
+
+    public QueryResult fetchTableExists(String tableName) {
         Connection connection = null;
         DatabaseMetaData meta;
         ResultSet results = null;
@@ -85,9 +56,9 @@ public final class DatabaseController implements AutoCloseable{
             connection = connectionSource.getConnection();
             meta = connection.getMetaData();
             results = meta.getTables(null, null, tableName, null);
-            return results.next();
+            return new QueryResult(results.next());
         } catch (SQLException e) {
-            return false;
+            return new QueryResult(e);
         } finally {
             try {
                 if (results != null) results.close();
@@ -96,13 +67,14 @@ public final class DatabaseController implements AutoCloseable{
         }
     }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
 
     @Override
     public void close() throws Exception {
         executorService.close();
         connectionSource.close();
     }
+
+
+
+
 }
