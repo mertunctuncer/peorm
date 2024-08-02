@@ -3,62 +3,64 @@ package me.mertunctuncer.peorm.query;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
 
 public final class DeleteQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
-    private final IndexedSQLMap whereData;
+    private final SQLPairList whereConstraints;
     private final boolean isDeleteAll;
 
-    private DeleteQuery(TableProperties<T> tableProperties, IndexedSQLMap whereData, boolean isDeleteAll) {
-        this.tableProperties = tableProperties;
-        this.isDeleteAll = isDeleteAll;
-        if(!isDeleteAll) this.whereData = Objects.requireNonNull(whereData, "Where must not be null if the query is not delete all");
-        else this.whereData = whereData;
+    private DeleteQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints) {
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
+        this.isDeleteAll = whereConstraints == null;
+        this.whereConstraints = whereConstraints;
     }
+
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
-    public IndexedSQLMap getWhereData() {
-        return whereData;
+    public SQLPairList getWhereConstraints() {
+        return whereConstraints;
     }
 
     public boolean isDeleteAll() {
         return isDeleteAll;
     }
 
-    public static final class Builder<T> {
-
-        private final TableProperties<T> tableProperties;
-        private IndexedSQLMap where = null;
+    public static final class Builder<T> implements QueryBuilder<T>{
+        private TableProperties<T> tableProperties;
+        private SQLPairList whereConstraints = null;
         private boolean isDeleteAll = false;
 
-        public Builder(TableProperties<T> tableProperties) {
-            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
+        @Override
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
+            return this;
         }
 
-        public DeleteQuery.Builder<T> deleteAll(boolean isDeleteAll) {
+        public Builder<T> shouldDeleteAll(boolean isDeleteAll) {
             this.isDeleteAll = isDeleteAll;
             return this;
         }
 
-        public DeleteQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer) {
-            this.where = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
+        public Builder<T> withWhereConstraintByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
+            this.whereConstraints = SQLPairList.Factory.create(primaryKeyOwner, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
             return this;
         }
 
-        public DeleteQuery.Builder<T> where(IndexedSQLMap where) {
-            this.where = where;
+        public Builder<T> withWhereConstraint(SQLPairList whereClause) {
+            this.whereConstraints = whereClause;
             return this;
         }
 
         public DeleteQuery<T> build() {
-            return new DeleteQuery<>(tableProperties, Objects.requireNonNull(where, "Values must be set"), isDeleteAll);
+            if (isDeleteAll) whereConstraints = null;
+            return new DeleteQuery<>(tableProperties, whereConstraints);
         }
     }
 }
