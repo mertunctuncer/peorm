@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.dao;
 
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -18,34 +18,34 @@ public interface DAO<T> extends AutoCloseable{
     boolean drop();
     CompletableFuture<Boolean> dropAsync();
 
-    boolean insert(T data);
-    CompletableFuture<Boolean> insertAsync(T data);
+    boolean insert(T entry);
+    CompletableFuture<Boolean> insertAsync(T entry);
 
-    boolean upsert(T data);
-    CompletableFuture<Boolean> upsertAsync(T data);
+    boolean upsert(T entry);
+    CompletableFuture<Boolean> upsertAsync(T entry);
 
-    boolean update(T data);
-    boolean update(T data, IndexedSQLMap where);
-    boolean update(IndexedSQLMap data, IndexedSQLMap where);
+    boolean update(T entry);
+    boolean update(T entry, SQLPairList whereConstraints);
+    boolean update(SQLPairList entryValues, SQLPairList whereConstraints);
 
-    CompletableFuture<Boolean> updateAsync(T data);
-    CompletableFuture<Boolean> updateAsync(T data, IndexedSQLMap where);
-    CompletableFuture<Boolean> updateAsync(IndexedSQLMap data, IndexedSQLMap where);
+    CompletableFuture<Boolean> updateAsync(T entry);
+    CompletableFuture<Boolean> updateAsync(T entry, SQLPairList whereConstraints);
+    CompletableFuture<Boolean> updateAsync(SQLPairList newValues, SQLPairList whereConstraints);
 
-    List<T> fetch(T where);
-    List<T> fetch(IndexedSQLMap where);
+    List<T> fetch(T primaryKeyOwner);
+    List<T> fetch(SQLPairList whereConstraints);
     List<T> fetchAll();
 
-    CompletableFuture<List<T>> fetchAsync(T where);
-    CompletableFuture<List<T>> fetchAsync(IndexedSQLMap where);
+    CompletableFuture<List<T>> fetchAsync(T primaryKeyOwner);
+    CompletableFuture<List<T>> fetchAsync(SQLPairList whereConstraints);
     CompletableFuture<List<T>> fetchAllAsync();
 
-    boolean delete(T where);
-    boolean delete(IndexedSQLMap where);
+    boolean delete(T primaryKeyOwner);
+    boolean delete(SQLPairList whereConstraints);
     boolean deleteAll();
 
-    CompletableFuture<Boolean> deleteAsync(T where);
-    CompletableFuture<Boolean> deleteAsync(IndexedSQLMap where);
+    CompletableFuture<Boolean> deleteAsync(T primaryKeyOwner);
+    CompletableFuture<Boolean> deleteAsync(SQLPairList whereConstraints);
     CompletableFuture<Boolean> deleteAllAsync();
 
 
