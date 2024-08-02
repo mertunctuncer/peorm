@@ -85,6 +85,14 @@ public class IndexedSQLMap {
             return indexedSQLMap;
         }
 
+        public static IndexedSQLMap of(List<SQLPair> pairs) {
+            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
+            for(SQLPair pair : pairs) {
+                indexedSQLMap.put(pair.getColumn(), pair.getValue());
+            }
+            return indexedSQLMap;
+        }
+
         public static IndexedSQLMap of(SQLPair pair) {
             return new IndexedSQLMap(pair);
         }
