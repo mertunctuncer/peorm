@@ -3,7 +3,7 @@ package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
 
@@ -11,43 +11,45 @@ import java.util.Objects;
 public final class InsertQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
-    private final IndexedSQLMap rowData;
+    private final SQLPairList entryValues;
 
-    private InsertQuery(TableProperties<T> tableProperties, IndexedSQLMap rowData) {
-        this.tableProperties = tableProperties;
-        this.rowData = rowData;
+    private InsertQuery(TableProperties<T> tableProperties, SQLPairList entryValues) {
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
+        this.entryValues = Objects.requireNonNull(entryValues, "entryValues must not be null");
     }
 
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
-    public IndexedSQLMap getRowData() {
-        return rowData;
+    public SQLPairList getEntryValues() {
+        return entryValues;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T> implements QueryBuilder<T> {
 
-        private final TableProperties<T> tableProperties;
-        private IndexedSQLMap rowData;
+        private TableProperties<T> tableProperties;
+        private SQLPairList entryValues;
 
-        public Builder(TableProperties<T> tableProperties) {
-            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
-        }
-
-        public Builder<T> rowData(T values, ReflectionContainer<T> reflectionContainer) {
-            this.rowData = IndexedSQLMap.Factory.create(values, tableProperties, reflectionContainer, columnData -> columnData.autoIncrement() != null);
+        @Override
+        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
             return this;
         }
 
-        public Builder<T> rowData(IndexedSQLMap values) {
-            this.rowData = values;
+        public Builder<T> withEntryValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
+            this.entryValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer, columnData -> columnData.autoIncrement() != null);
+            return this;
+        }
+
+        public Builder<T> withEntryValues(SQLPairList entryValues) {
+            this.entryValues = entryValues;
             return this;
         }
 
         public InsertQuery<T> build() {
-            return new InsertQuery<>(tableProperties, Objects.requireNonNull(rowData, "Values must be set"));
+            return new InsertQuery<>(tableProperties, entryValues);
         }
     }
 }
