@@ -1,7 +1,6 @@
 package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.Builder;
 
 import java.util.Objects;
 
@@ -10,16 +9,12 @@ public final class CreateTableQuery<T> implements Query<T> {
     private final boolean ifNotExists;
 
     private CreateTableQuery(TableProperties<T> tableProperties, boolean ifNotExists) {
-        this.tableProperties = tableProperties;
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
         this.ifNotExists = ifNotExists;
     }
 
-    public static Builder<T> builder(TableProperties<T> tableProperties) {
-        return new Builder<T>(tableProperties);
-    }
-
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
@@ -27,16 +22,20 @@ public final class CreateTableQuery<T> implements Query<T> {
         return ifNotExists;
     }
 
-    public static final class Builder<T> implements me.mertunctuncer.peorm.util.Builder<Query<T>> {
 
-        private final TableProperties<T> tableProperties;
+    public static final class Builder<T> implements QueryBuilder<T> {
+
+        private TableProperties<T> tableProperties = null;
         private boolean ifNotExists = false;
 
-        public Builder(TableProperties<T> tableProperties) {
-            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
+
+        @Override
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
+            return this;
         }
 
-        public Builder<T> setIfNotExists(boolean ifNotExists) {
+        public Builder<T> withIfNotExists(boolean ifNotExists) {
             this.ifNotExists = ifNotExists;
             return this;
         }
