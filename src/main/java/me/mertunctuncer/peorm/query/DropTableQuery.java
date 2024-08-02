@@ -10,20 +10,22 @@ public final class DropTableQuery<T> implements Query<T> {
     private final TableProperties<T> tableProperties;
 
     private DropTableQuery(TableProperties<T> tableProperties) {
-        this.tableProperties = tableProperties;
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
     }
 
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T> implements QueryBuilder<T>{
 
-        private final TableProperties<T> tableProperties;
+        private TableProperties<T> tableProperties;
 
-        public Builder(TableProperties<T> tableProperties) {
-            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
+        @Override
+        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
+            return this;
         }
 
         public DropTableQuery<T> build() {
