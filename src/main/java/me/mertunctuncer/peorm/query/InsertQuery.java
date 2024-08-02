@@ -33,13 +33,13 @@ public final class InsertQuery<T> implements Query<T> {
         private SQLPairList entryValues;
 
         @Override
-        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
             return this;
         }
 
         public Builder<T> withEntryValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
-            this.entryValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer, columnData -> columnData.autoIncrement() != null);
+            this.entryValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer, columnProperties -> columnProperties.autoIncrement() != null);
             return this;
         }
 
