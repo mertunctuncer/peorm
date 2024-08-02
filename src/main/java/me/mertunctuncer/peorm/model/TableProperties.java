@@ -2,7 +2,7 @@ package me.mertunctuncer.peorm.model;
 
 import java.util.List;
 
-public record TableData<T>(
+public record TableProperties<T>(
         String name,
-        List<ColumnData> columns
+        List<ColumnProperties> columns
 ) { }

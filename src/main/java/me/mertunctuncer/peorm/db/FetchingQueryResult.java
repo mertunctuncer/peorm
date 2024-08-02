@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.model;
+package me.mertunctuncer.peorm.db;
 
 import java.util.List;
 

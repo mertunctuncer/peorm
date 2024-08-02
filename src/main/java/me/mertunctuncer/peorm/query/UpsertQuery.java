@@ -1,23 +1,23 @@
 package me.mertunctuncer.peorm.query;
 
 
-import me.mertunctuncer.peorm.model.ReflectionData;
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 public final class UpsertQuery<T> implements Query<T> {
 
-    private final TableData<T> tableData;
+    private final TableProperties<T> tableProperties;
     private final IndexedSQLMap rowData;
 
-    private UpsertQuery(TableData<T> tableData, IndexedSQLMap rowData) {
-        this.tableData = tableData;
+    private UpsertQuery(TableProperties<T> tableProperties, IndexedSQLMap rowData) {
+        this.tableProperties = tableProperties;
         this.rowData = rowData;
     }
 
     @Override
-    public TableData<T> getTableData() {
-        return tableData;
+    public TableProperties<T> getTableData() {
+        return tableProperties;
     }
 
     public IndexedSQLMap getRowData() {
@@ -26,15 +26,15 @@ public final class UpsertQuery<T> implements Query<T> {
 
     public static final class Builder<T> {
 
-        public final TableData<T> tableData;
+        public final TableProperties<T> tableProperties;
         public IndexedSQLMap values;
 
-        public Builder(TableData<T> tableData) {
-            this.tableData = tableData;
+        public Builder(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
         }
 
-        public UpsertQuery.Builder<T> rowData(T rowData, ReflectionData<T> reflectionData) {
-            this.values = IndexedSQLMap.Factory.create(rowData, tableData, reflectionData);
+        public UpsertQuery.Builder<T> rowData(T rowData, ReflectionContainer<T> reflectionContainer) {
+            this.values = IndexedSQLMap.Factory.create(rowData, tableProperties, reflectionContainer);
             return this;
         }
 
@@ -44,7 +44,7 @@ public final class UpsertQuery<T> implements Query<T> {
         }
 
         public UpsertQuery<T> build() {
-            return new UpsertQuery<>(tableData, values);
+            return new UpsertQuery<>(tableProperties, values);
         }
     }
 }

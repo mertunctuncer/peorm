@@ -1,9 +1,9 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.annotation.*;
-import me.mertunctuncer.peorm.model.ReflectionData;
-import me.mertunctuncer.peorm.model.TableData;
-import me.mertunctuncer.peorm.model.ColumnData;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.model.TableProperties;
+import me.mertunctuncer.peorm.model.ColumnProperties;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -43,10 +43,11 @@ public class ClassParser<T> {
         return this;
     }
 
-    public TableData<T> getTableData() {
-        return new TableData<>(getTableName(), getColumnData());
+    public TableProperties<T> getTableProperties() {
+        return new TableProperties<>(getTableName(), getColumnProperties());
     }
-    public List<ColumnData> getColumnData() {
+
+    public List<ColumnProperties> getColumnProperties() {
         return fields.values().stream().filter(field -> field.isAnnotationPresent(Column.class)).map(field -> {
             Column column = field.getAnnotation(Column.class);
             String effectiveName = column != null && !column.name().isEmpty() ? column.name() : field.getName();
@@ -64,7 +65,7 @@ public class ClassParser<T> {
             boolean unique = field.isAnnotationPresent(Unique.class);
             AutoIncrement autoIncrement = field.getAnnotation(AutoIncrement.class);
 
-            return new ColumnData(
+            return new ColumnProperties(
                     type,
                     effectiveName,
                     size,
@@ -84,12 +85,12 @@ public class ClassParser<T> {
         return table.name().isEmpty() ? clazz.getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
     }
 
-    public ReflectionData<T> getReflectionData() {
-        return new ReflectionData<>(clazz, fields);
+    public ReflectionContainer<T> getReflectionContainer() {
+        return new ReflectionContainer<>(clazz, fields);
     }
 
     public InstanceFactory<T> createInstanceFactory() {
-        return new InstanceFactory<>(getReflectionData(), defaults);
+        return new InstanceFactory<>(getReflectionContainer(), defaults);
     }
 }
 

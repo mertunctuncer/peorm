@@ -1,33 +1,33 @@
 package me.mertunctuncer.peorm.query;
 
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.TableProperties;
 
 import java.util.Objects;
 
 
 public final class DropTableQuery<T> implements Query<T> {
 
-    private final TableData<T> tableData;
+    private final TableProperties<T> tableProperties;
 
-    private DropTableQuery(TableData<T> tableData) {
-        this.tableData = tableData;
+    private DropTableQuery(TableProperties<T> tableProperties) {
+        this.tableProperties = tableProperties;
     }
 
     @Override
-    public TableData<T> getTableData() {
-        return tableData;
+    public TableProperties<T> getTableData() {
+        return tableProperties;
     }
 
     public static final class Builder<T> {
 
-        private final TableData<T> tableData;
+        private final TableProperties<T> tableProperties;
 
-        public Builder(TableData<T> tableData) {
-            this.tableData = Objects.requireNonNull(tableData, "Table data must not be null");
+        public Builder(TableProperties<T> tableProperties) {
+            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
         }
 
         public DropTableQuery<T> build() {
-            return new DropTableQuery<>(tableData);
+            return new DropTableQuery<>(tableProperties);
         }
     }
 }

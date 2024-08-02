@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.query;
 
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.TableProperties;
 
 public sealed interface Query<T>
         permits CreateTableQuery,
@@ -11,5 +11,5 @@ public sealed interface Query<T>
         DeleteQuery,
         UpsertQuery
 {
-    TableData<T> getTableData();
+    TableProperties<T> getTableData();
 }
