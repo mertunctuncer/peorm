@@ -3,73 +3,65 @@ package me.mertunctuncer.peorm.query;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public final class SelectQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
-    private final IndexedSQLMap whereData;
+    private final SQLPairList whereConstraints;
     private final boolean isFetchAll;
 
-    private SelectQuery(TableProperties<T> tableProperties, IndexedSQLMap whereData, boolean isFetchAll) {
-        this.tableProperties = tableProperties;
-        this.isFetchAll = isFetchAll;
-        if(!isFetchAll) this.whereData = Objects.requireNonNull(whereData, "Where must not be null if the query is not fetch all");
-        else this.whereData = whereData;
+    private SelectQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints) {
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
+        this.isFetchAll = whereConstraints == null;
+        this.whereConstraints = whereConstraints;
     }
 
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
-    public IndexedSQLMap getWhereData() {
-        return whereData;
+    public SQLPairList getWhereConstraints() {
+        return whereConstraints;
     }
 
     public boolean isFetchAll() {
         return isFetchAll;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T> implements QueryBuilder<T>{
 
-        private final TableProperties<T> tableProperties;
-        private IndexedSQLMap selectData;
+        private TableProperties<T> tableProperties;
+        private SQLPairList whereConstraints;
         private boolean isFetchAll = false;
 
-
-        public Builder(TableProperties<T> tableProperties) {
+        @Override
+        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
+            return this;
         }
-        public SelectQuery.Builder<T> fetchAll(boolean isFetchAll) {
+
+        public SelectQuery.Builder<T> shouldFetchAll(boolean isFetchAll) {
             this.isFetchAll = isFetchAll;
             return this;
         }
 
-        public SelectQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer);
+        public SelectQuery.Builder<T> withWhereConstraintByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
+            this.whereConstraints = SQLPairList.Factory.create(primaryKeyOwner, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
             return this;
         }
 
-        public SelectQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> allowFilter) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer, allowFilter);
-            return this;
-        }
-
-        public SelectQuery.Builder<T> where(IndexedSQLMap where) {
-            this.selectData = where;
+        public SelectQuery.Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
+            this.whereConstraints = whereConstraints;
             return this;
         }
 
         public SelectQuery<T> build() {
-            return new SelectQuery<>(
-                    tableProperties,
-                    Objects.requireNonNull(selectData, "Select data must be set"),
-                    isFetchAll
-            );
+            if(isFetchAll) whereConstraints = null;
+            return new SelectQuery<>(tableProperties, whereConstraints);
         }
     }
 }
