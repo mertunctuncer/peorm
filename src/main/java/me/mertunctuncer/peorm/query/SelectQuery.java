@@ -1,8 +1,8 @@
 package me.mertunctuncer.peorm.query;
 
-import me.mertunctuncer.peorm.model.ColumnData;
-import me.mertunctuncer.peorm.model.ReflectionData;
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.ColumnProperties;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.util.Objects;
@@ -10,20 +10,20 @@ import java.util.function.Predicate;
 
 public final class SelectQuery<T> implements Query<T> {
 
-    private final TableData<T> tableData;
+    private final TableProperties<T> tableProperties;
     private final IndexedSQLMap whereData;
     private final boolean isFetchAll;
 
-    private SelectQuery(TableData<T> tableData, IndexedSQLMap whereData, boolean isFetchAll) {
-        this.tableData = tableData;
+    private SelectQuery(TableProperties<T> tableProperties, IndexedSQLMap whereData, boolean isFetchAll) {
+        this.tableProperties = tableProperties;
         this.isFetchAll = isFetchAll;
         if(!isFetchAll) this.whereData = Objects.requireNonNull(whereData, "Where must not be null if the query is not fetch all");
         else this.whereData = whereData;
     }
 
     @Override
-    public TableData<T> getTableData() {
-        return tableData;
+    public TableProperties<T> getTableData() {
+        return tableProperties;
     }
 
     public IndexedSQLMap getWhereData() {
@@ -36,26 +36,26 @@ public final class SelectQuery<T> implements Query<T> {
 
     public static final class Builder<T> {
 
-        private final TableData<T> tableData;
+        private final TableProperties<T> tableProperties;
         private IndexedSQLMap selectData;
         private boolean isFetchAll = false;
 
 
-        public Builder(TableData<T> tableData) {
-            this.tableData = tableData;
+        public Builder(TableProperties<T> tableProperties) {
+            this.tableProperties = tableProperties;
         }
         public SelectQuery.Builder<T> fetchAll(boolean isFetchAll) {
             this.isFetchAll = isFetchAll;
             return this;
         }
 
-        public SelectQuery.Builder<T> where(T where, ReflectionData<T> reflectionData) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableData, reflectionData);
+        public SelectQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer) {
+            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer);
             return this;
         }
 
-        public SelectQuery.Builder<T> where(T where, ReflectionData<T> reflectionData, Predicate<ColumnData> allowFilter) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableData, reflectionData, allowFilter);
+        public SelectQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> allowFilter) {
+            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer, allowFilter);
             return this;
         }
 
@@ -66,7 +66,7 @@ public final class SelectQuery<T> implements Query<T> {
 
         public SelectQuery<T> build() {
             return new SelectQuery<>(
-                    tableData,
+                    tableProperties,
                     Objects.requireNonNull(selectData, "Select data must be set"),
                     isFetchAll
             );

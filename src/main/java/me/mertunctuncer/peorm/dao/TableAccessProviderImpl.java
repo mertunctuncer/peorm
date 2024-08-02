@@ -1,9 +1,9 @@
 package me.mertunctuncer.peorm.dao;
 
 import me.mertunctuncer.peorm.db.DatabaseController;
-import me.mertunctuncer.peorm.model.ColumnData;
-import me.mertunctuncer.peorm.model.ReflectionData;
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.ColumnProperties;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.reflection.ClassParser;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
@@ -17,9 +17,9 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     private final DatabaseController databaseController;
     private final ExecutorService executorService;
-    private final ReflectionData<T> reflectionData;
+    private final ReflectionContainer<T> reflectionContainer;
     private final InstanceFactory<T> instanceFactory;
-    private final TableData<T> tableData;
+    private final TableProperties<T> tableProperties;
 
 
     public TableAccessProviderImpl(DatabaseController databaseController, Class<T> clazz, ExecutorService executorService) {
@@ -37,8 +37,8 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
         if(instance != null) parser.setDefaults(instance);
 
         this.databaseController = databaseController;
-        this.tableData = parser.getTableData();
-        this.reflectionData = parser.getReflectionData();
+        this.tableProperties = parser.getTableProperties();
+        this.reflectionContainer = parser.getReflectionContainer();
         this.executorService = executorService;
         this.instanceFactory = parser.createInstanceFactory();
     }
@@ -46,7 +46,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
     @Override
     public boolean fetchExists() {
         return databaseController
-                .tableExists(tableData.name());
+                .tableExists(tableProperties.name());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean create() {
-        Query<T> query = new CreateTableQuery.Builder<>(tableData)
+        Query<T> query = new CreateTableQuery.Builder<>(tableProperties)
                 .setIfNotExists(false)
                 .build();
         return databaseController.execute(query).isSuccessful();
@@ -64,7 +64,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean create(boolean ifNotExists) {
-        Query<T> query = new CreateTableQuery.Builder<>(tableData)
+        Query<T> query = new CreateTableQuery.Builder<>(tableProperties)
                 .setIfNotExists(ifNotExists)
                 .build();
         return databaseController.execute(query).isSuccessful();
@@ -82,7 +82,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean drop() {
-        Query<T> query = new DropTableQuery<>.Builder<>(tableData).build();
+        Query<T> query = new DropTableQuery<>.Builder<>(tableProperties).build();
         return databaseController.execute(query).isSuccessful();
     }
 
@@ -93,8 +93,8 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean insert(T data) {
-        Query<T> query = new InsertQuery.Builder<>(tableData)
-                .rowData(data, reflectionData)
+        Query<T> query = new InsertQuery.Builder<>(tableProperties)
+                .rowData(data, reflectionContainer)
                 .build();
 
         return databaseController.execute(query).isSuccessful();
@@ -107,8 +107,8 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean upsert(T data) {
-        Query<T> query = new UpsertQuery.Builder<>(tableData)
-                .rowData(data, reflectionData)
+        Query<T> query = new UpsertQuery.Builder<>(tableProperties)
+                .rowData(data, reflectionContainer)
                 .build();
         return databaseController.execute(query).isSuccessful();
     }
@@ -120,25 +120,25 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean update(T data) {
-        Query<T> query = new UpdateQuery.Builder<>(tableData)
-                .where(data, reflectionData, ColumnData::primaryKey)
-                .rowData(data, reflectionData, columnData -> !columnData.primaryKey())
+        Query<T> query = new UpdateQuery.Builder<>(tableProperties)
+                .where(data, reflectionContainer, ColumnProperties::primaryKey)
+                .rowData(data, reflectionContainer, columnData -> !columnData.primaryKey())
                 .build();
         return databaseController.execute(query).isSuccessful();
     }
 
     @Override
     public boolean update(T data, IndexedSQLMap where) {
-        Query<T> query = new UpdateQuery.Builder<>(tableData)
+        Query<T> query = new UpdateQuery.Builder<>(tableProperties)
                 .where(where)
-                .rowData(data, reflectionData)
+                .rowData(data, reflectionContainer)
                 .build();
         return databaseController.execute(query).isSuccessful();
     }
 
     @Override
     public boolean update(IndexedSQLMap data, IndexedSQLMap where) {
-        Query<T> query = new UpdateQuery.Builder<>(tableData)
+        Query<T> query = new UpdateQuery.Builder<>(tableProperties)
                 .where(where)
                 .rowData(data)
                 .build();
@@ -162,29 +162,29 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public List<T> fetch(T where) {
-        Query<T> query = new SelectQuery.Builder<>(tableData)
-                .where(where, reflectionData, ColumnData::primaryKey)
+        Query<T> query = new SelectQuery.Builder<>(tableProperties)
+                .where(where, reflectionContainer, ColumnProperties::primaryKey)
                 .build();
         List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
-        return results.stream().map(instanceFactory::initialize).toList();
+        return results.stream().map(instanceFactory::createWithOverrides).toList();
     }
 
     @Override
     public List<T> fetch(IndexedSQLMap where) {
-        Query<T> query = new SelectQuery.Builder<>(tableData)
+        Query<T> query = new SelectQuery.Builder<>(tableProperties)
                 .where(where)
                 .build();
         List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
-        return results.stream().map(instanceFactory::initialize).toList();
+        return results.stream().map(instanceFactory::createWithOverrides).toList();
     }
 
     @Override
     public List<T> fetchAll() {
-        Query<T> query = new SelectQuery.Builder<>(tableData)
+        Query<T> query = new SelectQuery.Builder<>(tableProperties)
                 .fetchAll(true)
                 .build();
         List<IndexedSQLMap> results = databaseController.fetch(query).getResults();
-        return results.stream().map(instanceFactory::initialize).toList();
+        return results.stream().map(instanceFactory::createWithOverrides).toList();
     }
 
     @Override
@@ -204,15 +204,15 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean delete(T where) {
-        Query<T> query = new DeleteQuery.Builder<>(tableData)
-                .where(where, reflectionData)
+        Query<T> query = new DeleteQuery.Builder<>(tableProperties)
+                .where(where, reflectionContainer)
                 .build();
         return databaseController.execute(query).isSuccessful();
     }
 
     @Override
     public boolean delete(IndexedSQLMap where) {
-        Query<T> query = new DeleteQuery.Builder<>(tableData)
+        Query<T> query = new DeleteQuery.Builder<>(tableProperties)
                 .where(where)
                 .build();
         return databaseController.execute(query).isSuccessful();
@@ -220,7 +220,7 @@ public class TableAccessProviderImpl<T> implements TableAccessProvider<T> {
 
     @Override
     public boolean deleteAll() {
-        Query<T> query = new DeleteQuery.Builder<>(tableData)
+        Query<T> query = new DeleteQuery.Builder<>(tableProperties)
                 .deleteAll(true)
                 .build();
 

@@ -1,34 +1,39 @@
 package me.mertunctuncer.peorm.query;
 
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.TableProperties;
+import me.mertunctuncer.peorm.util.Builder;
 
 import java.util.Objects;
 
 public final class CreateTableQuery<T> implements Query<T> {
-    private final TableData<T> tableData;
+    private final TableProperties<T> tableProperties;
     private final boolean ifNotExists;
 
-    private CreateTableQuery(TableData<T> tableData, boolean ifNotExists) {
-        this.tableData = tableData;
+    private CreateTableQuery(TableProperties<T> tableProperties, boolean ifNotExists) {
+        this.tableProperties = tableProperties;
         this.ifNotExists = ifNotExists;
     }
 
+    public static Builder<T> builder(TableProperties<T> tableProperties) {
+        return new Builder<T>(tableProperties);
+    }
+
     @Override
-    public TableData<T> getTableData() {
-        return tableData;
+    public TableProperties<T> getTableData() {
+        return tableProperties;
     }
 
     public boolean isIfNotExists() {
         return ifNotExists;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T> implements me.mertunctuncer.peorm.util.Builder<Query<T>> {
 
-        private final TableData<T> tableData;
+        private final TableProperties<T> tableProperties;
         private boolean ifNotExists = false;
 
-        public Builder(TableData<T> tableData) {
-            this.tableData = Objects.requireNonNull(tableData, "Table data must not be null");
+        public Builder(TableProperties<T> tableProperties) {
+            this.tableProperties = Objects.requireNonNull(tableProperties, "Table data must not be null");
         }
 
         public Builder<T> setIfNotExists(boolean ifNotExists) {
@@ -36,8 +41,9 @@ public final class CreateTableQuery<T> implements Query<T> {
             return this;
         }
 
-        public CreateTableQuery<T> build() {
-            return new CreateTableQuery<>(tableData, ifNotExists);
+        @Override
+        public Query<T> build() {
+            return new CreateTableQuery<>(tableProperties, ifNotExists);
         }
     }
 }

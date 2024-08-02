@@ -1,8 +1,8 @@
 package me.mertunctuncer.peorm.util;
 
-import me.mertunctuncer.peorm.model.ColumnData;
-import me.mertunctuncer.peorm.model.ReflectionData;
-import me.mertunctuncer.peorm.model.TableData;
+import me.mertunctuncer.peorm.model.ColumnProperties;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.model.TableProperties;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -55,28 +55,28 @@ public class IndexedSQLMap {
 
     public static final class Factory {
 
-        public static <T> IndexedSQLMap create(T data, TableData<T> tableData, ReflectionData<T> reflectionData, Predicate<ColumnData> columnFilter) {
+        public static <T> IndexedSQLMap create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> columnFilter) {
             IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
 
-            for(ColumnData columnData : tableData.columns()) {
-                if(!columnFilter.test(columnData)) continue;
+            for(ColumnProperties columnProperties : tableProperties.columns()) {
+                if(!columnFilter.test(columnProperties)) continue;
 
-                Field field = reflectionData.getColumnFieldMap().get(columnData.name());
+                Field field = reflectionContainer.columnFieldMap().get(columnProperties.name());
                 try {
-                    indexedSQLMap.put(columnData.name(), field.get(data));
+                    indexedSQLMap.put(columnProperties.name(), field.get(data));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
             return indexedSQLMap;
         }
-        public static <T> IndexedSQLMap create(T data, TableData<T> tableData, ReflectionData<T> reflectionData) {
+        public static <T> IndexedSQLMap create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer) {
             IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
 
-            for(ColumnData columnData : tableData.columns()) {
-                Field field = reflectionData.getColumnFieldMap().get(columnData.name());
+            for(ColumnProperties columnProperties : tableProperties.columns()) {
+                Field field = reflectionContainer.columnFieldMap().get(columnProperties.name());
                 try {
-                    indexedSQLMap.put(columnData.name(), field.get(data));
+                    indexedSQLMap.put(columnProperties.name(), field.get(data));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }

@@ -2,7 +2,7 @@ package me.mertunctuncer.peorm.model;
 
 import me.mertunctuncer.peorm.annotation.AutoIncrement;
 
-public record ColumnData (
+public record ColumnProperties(
         Class<?> type,
         String name,
         Integer size,

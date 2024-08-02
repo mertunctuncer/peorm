@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.util.Pair;
-import me.mertunctuncer.peorm.model.ColumnData;
+import me.mertunctuncer.peorm.model.ColumnProperties;
 import me.mertunctuncer.peorm.mock.NamedMockTable;
 import me.mertunctuncer.peorm.mock.NamelessMockTable;
 import org.junit.jupiter.api.Assertions;
@@ -28,13 +28,13 @@ class ClassParserTest {
 
     @Test
     void fields_should_be_read_correctly() {
-        List<Pair<Field, ColumnData>> fieldData = ClassParser.mapFields(NamedMockTable.class);
+        List<Pair<Field, ColumnProperties>> fieldData = ClassParser.mapFields(NamedMockTable.class);
 
         assertEquals(3, fieldData.size());
 
-        ColumnData id = fieldData.get(0).second();
-        ColumnData count = fieldData.get(1).second();
-        ColumnData name = fieldData.get(2).second();
+        ColumnProperties id = fieldData.get(0).second();
+        ColumnProperties count = fieldData.get(1).second();
+        ColumnProperties name = fieldData.get(2).second();
 
         assertEquals(id.name(), "no");
         assertTrue(id.primaryKey());

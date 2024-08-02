@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.model.ReflectionData;
+import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
 import java.lang.reflect.Field;
@@ -14,15 +14,14 @@ public class InstanceFactory<T> {
     private final Map<String, Field> columnFieldMap;
     private final Map<Field, Object> defaults;
 
-    public InstanceFactory(ReflectionData<T> reflectionData, Map<Field, Object> defaults) {
-        this.clazz = reflectionData.getClazz();
-        this.columnFieldMap = reflectionData.getColumnFieldMap();
+    public InstanceFactory(ReflectionContainer<T> reflectionContainer, Map<Field, Object> defaults) {
+        this.clazz = reflectionContainer.clazz();
+        this.columnFieldMap = reflectionContainer.columnFieldMap();
         this.defaults = defaults;
     }
 
-    public T initializeDefault() {
-
-        T instance = initializeEmpty();
+    public T create() {
+        T instance = createEmpty();
 
         for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
             Field field = entry.getValue();
@@ -36,10 +35,10 @@ public class InstanceFactory<T> {
         return instance;
     }
 
-    public T initialize(IndexedSQLMap fieldValueOverrides) {
+    public T createWithOverrides(IndexedSQLMap fieldValueOverrides) {
         Objects.requireNonNull(fieldValueOverrides, "Overrides must not be null");
 
-        T instance = initializeEmpty();
+        T instance = createEmpty();
 
         for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
             Field field = entry.getValue();
@@ -54,7 +53,7 @@ public class InstanceFactory<T> {
         return instance;
     }
 
-    public T initializeEmpty() {
+    public T createEmpty() {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (

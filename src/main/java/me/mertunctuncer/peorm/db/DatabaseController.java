@@ -2,9 +2,7 @@ package me.mertunctuncer.peorm.db;
 
 import me.mertunctuncer.peorm.dao.TableAccessProvider;
 import me.mertunctuncer.peorm.dao.TableAccessProviderImpl;
-import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
-import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.syntax.SyntaxProvider;
 import me.mertunctuncer.peorm.util.IndexedSQLMap;
 
