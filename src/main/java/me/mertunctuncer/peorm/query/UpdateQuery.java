@@ -3,83 +3,72 @@ package me.mertunctuncer.peorm.query;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
-
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public final class UpdateQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
-    private final IndexedSQLMap where;
-    private final IndexedSQLMap updateData;
+    private final SQLPairList whereConstraints;
+    private final SQLPairList newValues;
 
-    private UpdateQuery(TableProperties<T> tableProperties, IndexedSQLMap where, IndexedSQLMap rowData) {
-        this.tableProperties = tableProperties;
-        this.where = where;
-        this.updateData = rowData;
+    private UpdateQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints, SQLPairList newValues) {
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
+        this.whereConstraints = whereConstraints;
+        this.newValues = newValues;
     }
 
     @Override
-    public TableProperties<T> getTableData() {
+    public TableProperties<T> getTableProperties() {
         return tableProperties;
     }
 
-    public IndexedSQLMap getWhereData() {
-        return where;
+    public SQLPairList getWhereConstraints() {
+        return whereConstraints;
     }
 
-    public IndexedSQLMap getRowData() {
-        return updateData;
+    public SQLPairList getNewValues() {
+        return newValues;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T> implements QueryBuilder<T> {
 
-        private final TableProperties<T> tableProperties;
-        private IndexedSQLMap selectData;
-        private IndexedSQLMap updateData;
+        private TableProperties<T> tableProperties;
+        private SQLPairList whereConstraints;
+        private SQLPairList newValues;
 
-
-        public Builder(TableProperties<T> tableProperties) {
+        @Override
+        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
-        }
-
-        public UpdateQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer);
             return this;
         }
 
-        public UpdateQuery.Builder<T> where(T where, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> allowFilter) {
-            this.selectData = IndexedSQLMap.Factory.create(where, tableProperties, reflectionContainer, allowFilter);
+        public UpdateQuery.Builder<T> withWhereConstraintsByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
+            this.whereConstraints = SQLPairList.Factory.create(primaryKeyOwner, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
             return this;
         }
 
-        public UpdateQuery.Builder<T> where(IndexedSQLMap where) {
-            this.selectData = where;
+        public UpdateQuery.Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
+            this.whereConstraints = whereConstraints;
             return this;
         }
 
-        public UpdateQuery.Builder<T> rowData(T rowData, ReflectionContainer<T> reflectionContainer) {
-            this.updateData = IndexedSQLMap.Factory.create(rowData, tableProperties, reflectionContainer);
+        public UpdateQuery.Builder<T> withNewValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
+            this.newValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer);
             return this;
         }
 
-        public UpdateQuery.Builder<T> rowData(T rowData, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> allowFilter) {
-            this.updateData = IndexedSQLMap.Factory.create(rowData, tableProperties, reflectionContainer, allowFilter);
-            return this;
-        }
-
-        public UpdateQuery.Builder<T> rowData(IndexedSQLMap rowData) {
-            this.updateData = rowData;
+        public UpdateQuery.Builder<T> withNewValues(SQLPairList newValues) {
+            this.newValues = newValues;
             return this;
         }
 
         public UpdateQuery<T> build() {
             return new UpdateQuery<>(
                     tableProperties,
-                    Objects.requireNonNull(selectData, "Select data must be set"),
-                    Objects.requireNonNull(updateData, "Update data must be set")
+                    whereConstraints,
+                    newValues
             );
         }
     }
