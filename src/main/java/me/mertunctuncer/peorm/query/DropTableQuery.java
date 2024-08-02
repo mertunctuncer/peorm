@@ -23,7 +23,7 @@ public final class DropTableQuery<T> implements Query<T> {
         private TableProperties<T> tableProperties;
 
         @Override
-        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
             return this;
         }

@@ -39,22 +39,22 @@ public final class SelectQuery<T> implements Query<T> {
         private boolean isFetchAll = false;
 
         @Override
-        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
             return this;
         }
 
-        public SelectQuery.Builder<T> shouldFetchAll(boolean isFetchAll) {
+        public Builder<T> shouldFetchAll(boolean isFetchAll) {
             this.isFetchAll = isFetchAll;
             return this;
         }
 
-        public SelectQuery.Builder<T> withWhereConstraintByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
+        public Builder<T> withWhereConstraintByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
             this.whereConstraints = SQLPairList.Factory.create(primaryKeyOwner, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
             return this;
         }
 
-        public SelectQuery.Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
+        public Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
             this.whereConstraints = whereConstraints;
             return this;
         }

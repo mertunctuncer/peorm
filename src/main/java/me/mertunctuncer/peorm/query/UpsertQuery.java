@@ -6,6 +6,8 @@ import me.mertunctuncer.peorm.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.util.SQLPairList;
 
+import java.util.Objects;
+
 public final class UpsertQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
@@ -13,7 +15,7 @@ public final class UpsertQuery<T> implements Query<T> {
     private final SQLPairList newValues;
 
     private UpsertQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints, SQLPairList newValues) {
-        this.tableProperties = tableProperties;
+        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
         this.whereConstraints = whereConstraints;
         this.newValues = newValues;
     }
@@ -36,7 +38,6 @@ public final class UpsertQuery<T> implements Query<T> {
         private TableProperties<T> tableProperties;
         private SQLPairList whereConstraints;
         private SQLPairList newValues;
-
 
         @Override
         public Builder<T> withTableProperties(TableProperties<T> tableProperties) {

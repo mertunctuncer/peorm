@@ -39,27 +39,27 @@ public final class UpdateQuery<T> implements Query<T> {
         private SQLPairList newValues;
 
         @Override
-        public QueryBuilder<T> withTableProperties(TableProperties<T> tableProperties) {
+        public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
             this.tableProperties = tableProperties;
             return this;
         }
 
-        public UpdateQuery.Builder<T> withWhereConstraintsByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
+        public Builder<T> withWhereConstraintsByPrimaryKey(T primaryKeyOwner, ReflectionContainer<T> reflectionContainer) {
             this.whereConstraints = SQLPairList.Factory.create(primaryKeyOwner, tableProperties, reflectionContainer, ColumnProperties::primaryKey);
             return this;
         }
 
-        public UpdateQuery.Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
+        public Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
             this.whereConstraints = whereConstraints;
             return this;
         }
 
-        public UpdateQuery.Builder<T> withNewValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
+        public Builder<T> withNewValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
             this.newValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer);
             return this;
         }
 
-        public UpdateQuery.Builder<T> withNewValues(SQLPairList newValues) {
+        public Builder<T> withNewValues(SQLPairList newValues) {
             this.newValues = newValues;
             return this;
         }

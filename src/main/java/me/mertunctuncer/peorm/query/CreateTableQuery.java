@@ -5,6 +5,7 @@ import me.mertunctuncer.peorm.model.TableProperties;
 import java.util.Objects;
 
 public final class CreateTableQuery<T> implements Query<T> {
+
     private final TableProperties<T> tableProperties;
     private final boolean ifNotExists;
 
@@ -21,7 +22,6 @@ public final class CreateTableQuery<T> implements Query<T> {
     public boolean isIfNotExists() {
         return ifNotExists;
     }
-
 
     public static final class Builder<T> implements QueryBuilder<T> {
 

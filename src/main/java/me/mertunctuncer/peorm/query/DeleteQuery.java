@@ -33,6 +33,7 @@ public final class DeleteQuery<T> implements Query<T> {
     }
 
     public static final class Builder<T> implements QueryBuilder<T>{
+
         private TableProperties<T> tableProperties;
         private SQLPairList whereConstraints = null;
         private boolean isDeleteAll = false;
