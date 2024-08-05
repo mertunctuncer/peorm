@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class IndexedSQLMap {
+public class SQLPairList {
     private final Map<String, Object> data = new HashMap<>();
     private final List<String> index = new ArrayList<>();
 
@@ -16,11 +16,11 @@ public class IndexedSQLMap {
         return data.get(this.index.get(index));
     }
 
-    public Object getValue(String column) {
+    public Object getValueOf(String column) {
         return data.get(column);
     }
 
-    public Object getValueOrDefault(String column, Object defaultValue) {
+    public Object getValueOfOrDefault(String column, Object defaultValue) {
         return data.getOrDefault(column, defaultValue);
     }
 
@@ -32,7 +32,7 @@ public class IndexedSQLMap {
         return data.isEmpty();
     }
 
-    public List<SQLPair> getEntries() {
+    public List<SQLPair> asPairs() {
         return index.stream().map(column -> new SQLPair(column, data.get(column))).toList();
     }
 
@@ -41,64 +41,64 @@ public class IndexedSQLMap {
         return data.put(key, value);
     }
 
-    public IndexedSQLMap(SQLPair... pairs) {
+    public SQLPairList(SQLPair... pairs) {
         for(SQLPair pair : pairs) {
             index.add(pair.getColumn());
             data.put(pair.getColumn(), pair.getValue());
         }
     }
 
-    public IndexedSQLMap(SQLPair pair) {
+    public SQLPairList(SQLPair pair) {
         data.put(pair.getColumn(), pair.getValue());
         index.add(pair.getColumn());
     }
 
     public static final class Factory {
 
-        public static <T> IndexedSQLMap create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> columnFilter) {
-            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
+        public static <T> SQLPairList create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer, Predicate<ColumnProperties> columnFilter) {
+            SQLPairList SQLPairList = new SQLPairList();
 
             for(ColumnProperties columnProperties : tableProperties.columns()) {
                 if(!columnFilter.test(columnProperties)) continue;
 
                 Field field = reflectionContainer.columnFieldMap().get(columnProperties.name());
                 try {
-                    indexedSQLMap.put(columnProperties.name(), field.get(data));
+                    SQLPairList.put(columnProperties.name(), field.get(data));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
-            return indexedSQLMap;
+            return SQLPairList;
         }
-        public static <T> IndexedSQLMap create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer) {
-            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
+        public static <T> SQLPairList create(T data, TableProperties<T> tableProperties, ReflectionContainer<T> reflectionContainer) {
+            SQLPairList SQLPairList = new SQLPairList();
 
             for(ColumnProperties columnProperties : tableProperties.columns()) {
                 Field field = reflectionContainer.columnFieldMap().get(columnProperties.name());
                 try {
-                    indexedSQLMap.put(columnProperties.name(), field.get(data));
+                    SQLPairList.put(columnProperties.name(), field.get(data));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
 
-            return indexedSQLMap;
+            return SQLPairList;
         }
 
-        public static IndexedSQLMap of(List<SQLPair> pairs) {
-            IndexedSQLMap indexedSQLMap = new IndexedSQLMap();
+        public static SQLPairList of(List<SQLPair> pairs) {
+            SQLPairList SQLPairList = new SQLPairList();
             for(SQLPair pair : pairs) {
-                indexedSQLMap.put(pair.getColumn(), pair.getValue());
+                SQLPairList.put(pair.getColumn(), pair.getValue());
             }
-            return indexedSQLMap;
+            return SQLPairList;
         }
 
-        public static IndexedSQLMap of(SQLPair pair) {
-            return new IndexedSQLMap(pair);
+        public static SQLPairList of(SQLPair pair) {
+            return new SQLPairList(pair);
         }
 
-        public static IndexedSQLMap of(SQLPair... pairs) {
-            return new IndexedSQLMap(pairs);
+        public static SQLPairList of(SQLPair... pairs) {
+            return new SQLPairList(pairs);
         }
     }
 }

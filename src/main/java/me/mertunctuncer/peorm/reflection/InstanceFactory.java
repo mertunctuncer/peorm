@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.model.ReflectionContainer;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -35,14 +35,14 @@ public class InstanceFactory<T> {
         return instance;
     }
 
-    public T createWithOverrides(IndexedSQLMap fieldValueOverrides) {
+    public T createWithOverrides(SQLPairList fieldValueOverrides) {
         Objects.requireNonNull(fieldValueOverrides, "Overrides must not be null");
 
         T instance = createEmpty();
 
         for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
             Field field = entry.getValue();
-            Object value = fieldValueOverrides.getValueOrDefault(entry.getKey(), defaults.get(field)) ;
+            Object value = fieldValueOverrides.getValueOfOrDefault(entry.getKey(), defaults.get(field)) ;
             try {
                 field.set(instance, value);
             } catch (IllegalAccessException e) {

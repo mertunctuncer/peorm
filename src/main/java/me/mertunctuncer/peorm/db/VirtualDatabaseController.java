@@ -1,22 +1,13 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.dao.DAO;
-import me.mertunctuncer.peorm.dao.DAOBuilder;
 import me.mertunctuncer.peorm.model.FetchingQueryResult;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
-import me.mertunctuncer.peorm.syntax.SyntaxProvider;
-import me.mertunctuncer.peorm.util.IndexedSQLMap;
+import me.mertunctuncer.peorm.util.SQLPairList;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public final class VirtualDatabaseController implements DatabaseController{
 
@@ -38,7 +29,7 @@ public final class VirtualDatabaseController implements DatabaseController{
         }
     }
 
-    public <T> FetchingQueryResult<IndexedSQLMap> fetch(Query<T> query) {
+    public <T> FetchingQueryResult<SQLPairList> fetch(Query<T> query) {
         try (
                 StatementExecutor statementExecutor = new StatementExecutor(
                         connectionSource.getConnection(),
