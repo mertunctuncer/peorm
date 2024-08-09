@@ -1,7 +1,6 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.annotation.*;
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 
@@ -29,7 +28,11 @@ public class ClassParser<T> {
         );
     }
 
-    public ClassParser<T> setDefaults(T defaultProvider) {
+    public Map<String, String> getFieldAliases() {
+        return fieldAliases;
+    }
+
+    public void setDefaults(T defaultProvider) {
         Objects.requireNonNull(defaultProvider);
         columnFields.forEach(field -> {
             try {
@@ -39,7 +42,6 @@ public class ClassParser<T> {
                 throw new RuntimeException(e);
             }
         });
-        return this;
     }
 
     public TableProperties<T> getTableProperties() {

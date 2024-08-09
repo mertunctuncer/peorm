@@ -1,7 +1,5 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
-
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +34,9 @@ public class ReflectionRepository {
     }
 
     public <T> ReflectionContainer<T> getAsContainer(Class<T> clazz) {
+
+        cache(clazz);
+
         Map<String, Field> fieldMap = new HashMap<>();
 
         for(Field field: fields.getOrDefault(clazz, Collections.emptyList())) {

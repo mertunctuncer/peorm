@@ -1,7 +1,6 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
-import me.mertunctuncer.peorm.util.SQLPair;
+import me.mertunctuncer.peorm.util.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -15,20 +14,27 @@ public class InstanceFactory<T> {
     private final Class<T> clazz;
     private final Map<String, Field> fields;
 
-    public InstanceFactory(ReflectionContainer<T> reflectionContainer, Map<String, String> fieldAliases) {
+    public InstanceFactory(ReflectionContainer<T> reflectionContainer) {
         this.clazz = reflectionContainer.clazz();
         this.fields = reflectionContainer.fields();
-        fieldAliases.forEach((alias, fieldName) -> fields.put(alias, fields.get(fieldName)));
     }
 
-    public T createWithOverrides(Set<SQLPair> overrides) {
-        Objects.requireNonNull(overrides, "Overrides must not be null");
+    public void addAlias(Map<String, String> aliases) {
+        aliases.forEach(this::addAlias);
+
+    }
+    public void addAlias(String alias, String fieldName) {
+        fields.put(alias, fields.get(fieldName));
+    }
+
+    public T createWithFieldValues(Set<Pair<? extends String, Object>> fieldValues) {
+        Objects.requireNonNull(fieldValues, "Overrides must not be null");
 
         try {
             T instance = clazz.getDeclaredConstructor().newInstance();
-            overrides.forEach((pair) -> {
+            fieldValues.forEach((pair) -> {
                 try {
-                    fields.get(pair.getColumn()).set(instance, pair.getValue());
+                    fields.get(pair.first()).set(instance, pair.second());
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
