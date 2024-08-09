@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.dao;
 
 import me.mertunctuncer.peorm.db.DatabaseController;
-import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-public class DAOImpl<T> implements DAO<T> {
+public class DataAccessObjectImpl<T> implements DataAccessObject<T> {
 
     private final DatabaseController databaseController;
     private final ExecutorService executorService;
@@ -19,7 +19,7 @@ public class DAOImpl<T> implements DAO<T> {
     private final InstanceFactory<T> instanceFactory;
     private final TableProperties<T> tableProperties;
 
-    DAOImpl(
+    DataAccessObjectImpl(
             TableProperties<T> tableProperties,
             DatabaseController databaseController,
             ExecutorService executorService,

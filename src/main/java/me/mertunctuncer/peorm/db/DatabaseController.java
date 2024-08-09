@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.dao.DAO;
+import me.mertunctuncer.peorm.dao.DataAccessObject;
 import me.mertunctuncer.peorm.dao.DAOBuilder;
 import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.syntax.SyntaxProvider;
@@ -18,7 +18,7 @@ public abstract class DatabaseController implements AutoCloseable {
     private final ConnectionSource connectionSource;
     private final SyntaxProvider syntaxProvider;
     private ExecutorService executorService = null;
-    private final Map<Class<?>, DAO<?>> tableAccessProviders = new ConcurrentHashMap<>();
+    private final Map<Class<?>, DataAccessObject<?>> tableAccessProviders = new ConcurrentHashMap<>();
 
     public DatabaseController(
             ConnectionSource connectionSource,
@@ -30,18 +30,18 @@ public abstract class DatabaseController implements AutoCloseable {
         this.executorService = executorService;
     }
 
-    public <T> DAO<T> createDAO(Class<T> clazz, T defaults) {
+    public <T> DataAccessObject<T> createDAO(Class<T> clazz, T defaults) {
         DAOBuilder<T> daoBuilder = new DAOBuilder<>(clazz, this);
         if(defaults != null) daoBuilder.setDefaults(defaults);
         return daoBuilder.build();
     }
 
-    public <T> DAO<T> getDAO(Class<T> clazz) {
-        return (DAO<T>) tableAccessProviders.get(clazz);
+    public <T> DataAccessObject<T> getDAO(Class<T> clazz) {
+        return (DataAccessObject<T>) tableAccessProviders.get(clazz);
     }
 
-    public <T> void register(Class<T> clazz,DAO<T> dao) {
-        tableAccessProviders.put(clazz, dao);
+    public <T> void register(Class<T> clazz, DataAccessObject<T> dataAccessObject) {
+        tableAccessProviders.put(clazz, dataAccessObject);
     }
 
 

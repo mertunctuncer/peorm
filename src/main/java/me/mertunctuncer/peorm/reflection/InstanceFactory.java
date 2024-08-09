@@ -1,59 +1,46 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.model.ReflectionContainer;
-import me.mertunctuncer.peorm.util.SQLPairList;
+import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
+import me.mertunctuncer.peorm.util.SQLPair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class InstanceFactory<T> {
 
-    private final Class<T> clazz;
-    private final Map<String, Field> columnFieldMap;
-    private final Map<Field, Object> defaults;
 
-    public InstanceFactory(ReflectionContainer<T> reflectionContainer, Map<Field, Object> defaults) {
+    private final Class<T> clazz;
+    private final Map<String, Field> fields;
+
+    public InstanceFactory(ReflectionContainer<T> reflectionContainer, Map<String, String> fieldAliases) {
         this.clazz = reflectionContainer.clazz();
-        this.columnFieldMap = reflectionContainer.columnFieldMap();
-        this.defaults = defaults;
+        this.fields = reflectionContainer.fields();
+        fieldAliases.forEach((alias, fieldName) -> fields.put(alias, fields.get(fieldName)));
+    }
+
+    public T createWithOverrides(Set<SQLPair> overrides) {
+        Objects.requireNonNull(overrides, "Overrides must not be null");
+
+        try {
+            T instance = clazz.getDeclaredConstructor().newInstance();
+            overrides.forEach((pair) -> {
+                try {
+                    fields.get(pair.getColumn()).set(instance, pair.getValue());
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            return instance;
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public T create() {
-        T instance = createEmpty();
-
-        for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
-            Field field = entry.getValue();
-            Object value = defaults.get(field);
-            try {
-                field.set(instance, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return instance;
-    }
-
-    public T createWithOverrides(SQLPairList fieldValueOverrides) {
-        Objects.requireNonNull(fieldValueOverrides, "Overrides must not be null");
-
-        T instance = createEmpty();
-
-        for(Map.Entry<String, Field> entry : columnFieldMap.entrySet()) {
-            Field field = entry.getValue();
-            Object value = fieldValueOverrides.getValueOfOrDefault(entry.getKey(), defaults.get(field)) ;
-            try {
-                field.set(instance, value);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return instance;
-    }
-
-    public T createEmpty() {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (

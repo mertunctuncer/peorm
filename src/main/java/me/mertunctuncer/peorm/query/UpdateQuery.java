@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.query;
 
 import me.mertunctuncer.peorm.model.ColumnProperties;
-import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.util.SQLPairList;
 

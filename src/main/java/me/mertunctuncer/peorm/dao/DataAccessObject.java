@@ -5,7 +5,7 @@ import me.mertunctuncer.peorm.util.SQLPairList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface DAO<T> extends AutoCloseable{
+public interface DataAccessObject<T> extends AutoCloseable{
 
     boolean fetchExists();
     CompletableFuture<Boolean> fetchExistsAsync();

@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.annotation.*;
-import me.mertunctuncer.peorm.model.ReflectionContainer;
+import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 
@@ -11,28 +11,27 @@ import java.util.*;
 
 public class ClassParser<T> {
 
-    private final Class<T> clazz;
-    private final Map<String, Field> fields = new HashMap<>();
+    private final ReflectionContainer<T> reflectionContainer;
+    private final List<Field> columnFields = new ArrayList<>();
+    private final Map<String, String> fieldAliases = new HashMap<>();
     private final Map<Field, Object> defaults = new HashMap<>();
 
 
-    public ClassParser(final Class<T> clazz) {
-        this.clazz = Objects.requireNonNull(clazz);
+    public ClassParser(ReflectionContainer<T> reflectionContainer) {
+        this.reflectionContainer = Objects.requireNonNull(reflectionContainer, "reflectionContainer must not be null");
 
-        Arrays.stream(clazz.getDeclaredFields()).forEach(field ->  {
-            field.setAccessible(true);
-
-            Column column = field.getAnnotation(Column.class);
-            String effectiveName = column != null && !column.name().isEmpty() ? column.name() : field.getName();
-
-            fields.put(effectiveName, field);
-        });
+        reflectionContainer.fields().entrySet().stream().filter(entry -> entry.getValue().isAnnotationPresent(Column.class)).forEach(
+                entry -> {
+                    columnFields.add(entry.getValue());
+                    Column column = entry.getValue().getAnnotation(Column.class);
+                    if(!column.name().isEmpty()) fieldAliases.put(entry.getKey(), column.name());
+                }
+        );
     }
 
     public ClassParser<T> setDefaults(T defaultProvider) {
         Objects.requireNonNull(defaultProvider);
-        fields.values().forEach(field -> {
-            field.setAccessible(true);
+        columnFields.forEach(field -> {
             try {
                 Object value = field.get(defaultProvider);
                 defaults.put(field, value);
@@ -48,11 +47,9 @@ public class ClassParser<T> {
     }
 
     public List<ColumnProperties> getColumnProperties() {
-        return fields.values().stream().filter(field -> field.isAnnotationPresent(Column.class)).map(field -> {
+        return columnFields.stream().map(field -> {
             Column column = field.getAnnotation(Column.class);
-            String effectiveName = column != null && !column.name().isEmpty() ? column.name() : field.getName();
-
-            if (column == null) return null;
+            String effectiveName = fieldAliases.getOrDefault(field.getName(), field.getName());
 
             Class<?> type = field.getType();
             Integer size = column.size() == -1 ? null : column.size();
@@ -76,21 +73,12 @@ public class ClassParser<T> {
                     unique,
                     autoIncrement
             );
-        }).filter(Objects::nonNull).toList();
+        }).toList();
     }
-
 
     public String getTableName() {
-        Table table = Objects.requireNonNull(clazz.getAnnotation(Table.class), "Class must be annotated with @Table");
-        return table.name().isEmpty() ? clazz.getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
-    }
-
-    public ReflectionContainer<T> getReflectionContainer() {
-        return new ReflectionContainer<>(clazz, fields);
-    }
-
-    public InstanceFactory<T> createInstanceFactory() {
-        return new InstanceFactory<>(getReflectionContainer(), defaults);
+        Table table = Objects.requireNonNull(reflectionContainer.clazz().getAnnotation(Table.class), "Class must be annotated with @Table");
+        return table.name().isEmpty() ? reflectionContainer.clazz().getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
     }
 }
 
