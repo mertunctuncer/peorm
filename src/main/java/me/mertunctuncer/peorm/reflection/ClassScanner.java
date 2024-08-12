@@ -28,7 +28,7 @@ public class ClassScanner<T> {
         );
     }
 
-    public ClassScanner<T> setDefaults(T defaultProvider) {
+    public void setDefaults(T defaultProvider) {
         Objects.requireNonNull(defaultProvider);
         columnFields.forEach(field -> {
             try {
@@ -38,7 +38,6 @@ public class ClassScanner<T> {
                 throw new RuntimeException(e);
             }
         });
-        return this;
     }
 
     public TableProperties<T> getTableProperties() {
