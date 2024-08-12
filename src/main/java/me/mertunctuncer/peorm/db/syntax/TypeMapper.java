@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.syntax;
+package me.mertunctuncer.peorm.db.syntax;
 
 public interface TypeMapper {
 

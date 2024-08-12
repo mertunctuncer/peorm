@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.db;
 
+import me.mertunctuncer.peorm.db.query.Query;
 import me.mertunctuncer.peorm.model.FetchingQueryResult;
-import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.model.QueryResult;
 import me.mertunctuncer.peorm.util.SQLPairList;
 

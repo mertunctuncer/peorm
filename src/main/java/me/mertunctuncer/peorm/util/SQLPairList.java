@@ -1,7 +1,7 @@
 package me.mertunctuncer.peorm.util;
 
 import me.mertunctuncer.peorm.model.ColumnProperties;
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
+import me.mertunctuncer.peorm.reflection.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 
 import java.lang.reflect.Field;

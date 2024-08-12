@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.dao;
+package me.mertunctuncer.peorm.db.dao;
 
 import me.mertunctuncer.peorm.util.SQLPairList;
 

@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.reflection.model;
+package me.mertunctuncer.peorm.reflection;
 
 import java.lang.reflect.Field;
 import java.util.Map;

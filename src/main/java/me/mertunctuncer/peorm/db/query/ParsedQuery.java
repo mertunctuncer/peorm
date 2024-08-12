@@ -1,4 +1,4 @@
-package me.mertunctuncer.peorm.query;
+package me.mertunctuncer.peorm.db.query;
 
 import java.util.List;
 

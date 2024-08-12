@@ -1,21 +1,21 @@
-package me.mertunctuncer.peorm.query;
+package me.mertunctuncer.peorm.db.query;
 
 import me.mertunctuncer.peorm.model.ColumnProperties;
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
+import me.mertunctuncer.peorm.reflection.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
 
-public final class SelectQuery<T> implements Query<T> {
+public final class DeleteQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
     private final SQLPairList whereConstraints;
-    private final boolean isFetchAll;
+    private final boolean isDeleteAll;
 
-    private SelectQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints) {
+    private DeleteQuery(TableProperties<T> tableProperties, SQLPairList whereConstraints) {
         this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
-        this.isFetchAll = whereConstraints == null;
+        this.isDeleteAll = whereConstraints == null;
         this.whereConstraints = whereConstraints;
     }
 
@@ -28,15 +28,15 @@ public final class SelectQuery<T> implements Query<T> {
         return whereConstraints;
     }
 
-    public boolean isFetchAll() {
-        return isFetchAll;
+    public boolean isDeleteAll() {
+        return isDeleteAll;
     }
 
     public static final class Builder<T> implements QueryBuilder<T>{
 
         private TableProperties<T> tableProperties;
-        private SQLPairList whereConstraints;
-        private boolean isFetchAll = false;
+        private SQLPairList whereConstraints = null;
+        private boolean isDeleteAll = false;
 
         @Override
         public Builder<T> withTableProperties(TableProperties<T> tableProperties) {
@@ -44,8 +44,8 @@ public final class SelectQuery<T> implements Query<T> {
             return this;
         }
 
-        public Builder<T> shouldFetchAll(boolean isFetchAll) {
-            this.isFetchAll = isFetchAll;
+        public Builder<T> shouldDeleteAll(boolean isDeleteAll) {
+            this.isDeleteAll = isDeleteAll;
             return this;
         }
 
@@ -54,14 +54,14 @@ public final class SelectQuery<T> implements Query<T> {
             return this;
         }
 
-        public Builder<T> withWhereConstraints(SQLPairList whereConstraints) {
-            this.whereConstraints = whereConstraints;
+        public Builder<T> withWhereConstraint(SQLPairList whereClause) {
+            this.whereConstraints = whereClause;
             return this;
         }
 
-        public SelectQuery<T> build() {
-            if(isFetchAll) whereConstraints = null;
-            return new SelectQuery<>(tableProperties, whereConstraints);
+        public DeleteQuery<T> build() {
+            if (isDeleteAll) whereConstraints = null;
+            return new DeleteQuery<>(tableProperties, whereConstraints);
         }
     }
 }

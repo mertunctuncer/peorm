@@ -1,6 +1,5 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.util.SQLPair;
 
 import java.lang.reflect.Field;

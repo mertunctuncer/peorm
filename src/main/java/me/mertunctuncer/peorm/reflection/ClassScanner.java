@@ -1,7 +1,6 @@
 package me.mertunctuncer.peorm.reflection;
 
 import me.mertunctuncer.peorm.annotation.*;
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 
@@ -9,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 
-public class ClassParser<T> {
+public class ClassScanner<T> {
 
     private final ReflectionContainer<T> reflectionContainer;
     private final List<Field> columnFields = new ArrayList<>();
@@ -17,7 +16,7 @@ public class ClassParser<T> {
     private final Map<Field, Object> defaults = new HashMap<>();
 
 
-    public ClassParser(ReflectionContainer<T> reflectionContainer) {
+    public ClassScanner(ReflectionContainer<T> reflectionContainer) {
         this.reflectionContainer = Objects.requireNonNull(reflectionContainer, "reflectionContainer must not be null");
 
         reflectionContainer.fields().entrySet().stream().filter(entry -> entry.getValue().isAnnotationPresent(Column.class)).forEach(
@@ -29,7 +28,7 @@ public class ClassParser<T> {
         );
     }
 
-    public ClassParser<T> setDefaults(T defaultProvider) {
+    public ClassScanner<T> setDefaults(T defaultProvider) {
         Objects.requireNonNull(defaultProvider);
         columnFields.forEach(field -> {
             try {
@@ -79,6 +78,11 @@ public class ClassParser<T> {
     public String getTableName() {
         Table table = Objects.requireNonNull(reflectionContainer.clazz().getAnnotation(Table.class), "Class must be annotated with @Table");
         return table.name().isEmpty() ? reflectionContainer.clazz().getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
+    }
+
+
+    public Map<String, String> getFieldAliases() {
+        return fieldAliases;
     }
 }
 

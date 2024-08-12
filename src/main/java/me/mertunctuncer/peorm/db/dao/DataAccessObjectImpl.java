@@ -1,9 +1,9 @@
-package me.mertunctuncer.peorm.dao;
+package me.mertunctuncer.peorm.db.dao;
 
 import me.mertunctuncer.peorm.db.DatabaseController;
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
+import me.mertunctuncer.peorm.db.query.*;
+import me.mertunctuncer.peorm.reflection.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.query.*;
 import me.mertunctuncer.peorm.reflection.InstanceFactory;
 import me.mertunctuncer.peorm.util.SQLPairList;
 

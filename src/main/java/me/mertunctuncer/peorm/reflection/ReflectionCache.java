@@ -1,18 +1,16 @@
 package me.mertunctuncer.peorm.reflection;
 
-import me.mertunctuncer.peorm.reflection.model.ReflectionContainer;
-
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 
-public class ReflectionRepository {
+public class ReflectionCache {
     private final Map<Class<?>, List<Field>> fields = new ConcurrentHashMap<>();
     private final Function<Field, Field> beforeCache;
 
-    public ReflectionRepository(Function<Field, Field> onFieldCache) {
+    public ReflectionCache(Function<Field, Field> onFieldCache) {
         this.beforeCache = onFieldCache;
     }
 

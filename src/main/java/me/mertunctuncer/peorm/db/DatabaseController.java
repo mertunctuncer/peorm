@@ -1,9 +1,9 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.dao.DataAccessObject;
-import me.mertunctuncer.peorm.dao.DAOBuilder;
+import me.mertunctuncer.peorm.db.dao.DataAccessObject;
+import me.mertunctuncer.peorm.db.dao.DAOBuilder;
 import me.mertunctuncer.peorm.model.QueryResult;
-import me.mertunctuncer.peorm.syntax.SyntaxProvider;
+import me.mertunctuncer.peorm.db.syntax.SyntaxProvider;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
