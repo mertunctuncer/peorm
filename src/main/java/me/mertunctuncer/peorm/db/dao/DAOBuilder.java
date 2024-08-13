@@ -1,6 +1,5 @@
 package me.mertunctuncer.peorm.db.dao;
 
-import me.mertunctuncer.peorm.db.DatabaseController;
 import me.mertunctuncer.peorm.reflection.ClassScanner;
 
 import java.util.concurrent.ExecutorService;

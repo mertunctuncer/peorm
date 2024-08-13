@@ -1,7 +1,5 @@
 package me.mertunctuncer.peorm.db.dao;
 
-import me.mertunctuncer.peorm.util.SQLPairList;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

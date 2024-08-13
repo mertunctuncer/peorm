@@ -1,6 +1,6 @@
 package me.mertunctuncer.peorm.db;
 
-import me.mertunctuncer.peorm.util.SQLPairList;
+import me.mertunctuncer.peorm.util.SQLMap;
 import me.mertunctuncer.peorm.util.SQLPair;
 
 import java.sql.Connection;
@@ -22,8 +22,8 @@ public class ExecutableQuery extends ExecutableUpdate {
         resultSet = getPreparedStatement().executeQuery();
     }
 
-    public List<SQLPairList> getResults() throws SQLException {
-        List<SQLPairList> results = new ArrayList<>();
+    public List<SQLMap> getResults() throws SQLException {
+        List<SQLMap> results = new ArrayList<>();
 
         int columnCount = resultSet.getMetaData().getColumnCount();
         while(resultSet.next()) {
@@ -31,7 +31,7 @@ public class ExecutableQuery extends ExecutableUpdate {
             for(int i = 1; i <= columnCount; i++) {
                 dataPairs.add(new SQLPair(resultSet.getMetaData().getColumnName(i), resultSet.getString(i)));
             }
-            results.add(SQLPairList.Factory.of(dataPairs));
+            results.add(new SQLMap(dataPairs));
         }
 
         return results;

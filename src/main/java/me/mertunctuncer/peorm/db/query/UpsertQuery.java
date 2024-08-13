@@ -4,7 +4,6 @@ package me.mertunctuncer.peorm.db.query;
 import me.mertunctuncer.peorm.model.ColumnProperties;
 import me.mertunctuncer.peorm.reflection.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-import me.mertunctuncer.peorm.util.SQLPairList;
 
 import java.util.Objects;
 
