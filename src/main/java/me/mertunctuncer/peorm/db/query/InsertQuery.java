@@ -3,18 +3,18 @@ package me.mertunctuncer.peorm.db.query;
 
 import me.mertunctuncer.peorm.reflection.ReflectionContainer;
 import me.mertunctuncer.peorm.model.TableProperties;
-
-import java.util.Objects;
+import me.mertunctuncer.peorm.util.SQLMap;
+import org.jetbrains.annotations.NotNull;
 
 
 public final class InsertQuery<T> implements Query<T> {
 
     private final TableProperties<T> tableProperties;
-    private final SQLPairList entryValues;
+    private final SQLMap entry;
 
-    private InsertQuery(TableProperties<T> tableProperties, SQLPairList entryValues) {
-        this.tableProperties = Objects.requireNonNull(tableProperties, "tableProperties must not be null");
-        this.entryValues = Objects.requireNonNull(entryValues, "entryValues must not be null");
+    private InsertQuery(@NotNull TableProperties<T> tableProperties, @NotNull SQLMap entryValues) {
+        this.tableProperties = tableProperties;
+        this.entry = entryValues;
     }
 
     @Override
@@ -22,8 +22,8 @@ public final class InsertQuery<T> implements Query<T> {
         return tableProperties;
     }
 
-    public SQLPairList getEntryValues() {
-        return entryValues;
+    public SQLPairList getEntry() {
+        return entry;
     }
 
     public static final class Builder<T> implements QueryBuilder<T> {
@@ -38,6 +38,8 @@ public final class InsertQuery<T> implements Query<T> {
         }
 
         public Builder<T> withEntryValuesFromInstance(T instance, ReflectionContainer<T> reflectionContainer) {
+            tableProperties.columns().stream().map()
+            this.entryValues = new SQLMap()
             this.entryValues = SQLPairList.Factory.create(instance, tableProperties, reflectionContainer, columnProperties -> columnProperties.autoIncrement() != null);
             return this;
         }

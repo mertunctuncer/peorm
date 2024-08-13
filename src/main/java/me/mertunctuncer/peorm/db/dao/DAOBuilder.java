@@ -26,13 +26,13 @@ public class DAOBuilder<T> {
         return this;
     }
 
-    public DataAccessObject<T> build() {
+    public TableAccessObject<T> build() {
         ClassScanner<T> parser = new ClassScanner<>(clazz);
 
         if(defaults != null) parser.setDefaults(defaults);
         if(executorService == null) executorService = controller.getExecutor();
 
-        DataAccessObject<T> dataAccessObject = new DataAccessObjectImpl<>(
+        TableAccessObject<T> tableAccessObject = new BlockingTableAccessObject<>(
                 parser.getTableData(),
                 controller,
                 executorService,
@@ -40,7 +40,7 @@ public class DAOBuilder<T> {
                 parser.createInstanceFactory()
         );
 
-        controller.register(clazz, dataAccessObject);
-        return dataAccessObject;
+        controller.register(clazz, tableAccessObject);
+        return tableAccessObject;
     }
 }
