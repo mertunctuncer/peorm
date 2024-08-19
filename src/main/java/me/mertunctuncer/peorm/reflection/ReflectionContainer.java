@@ -5,8 +5,6 @@ import java.util.Map;
 
 public record ReflectionContainer<T>(
         Class<T> clazz,
-        Map<String, Field> fields,
-        Map<String, String> fieldAliases
+        Map<String, Field> fields
 ) {
-
 }

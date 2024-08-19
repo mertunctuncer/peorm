@@ -35,7 +35,7 @@ public class ReflectionCache {
 
     public <T> ReflectionContainer<T> getAsContainer(Class<T> clazz) {
 
-        cache(clazz);
+        if(!fields.containsKey(clazz)) cache(clazz);
 
         Map<String, Field> fieldMap = new HashMap<>();
 

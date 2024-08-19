@@ -23,11 +23,12 @@ public class InstanceFactory<T> {
         aliases.forEach(this::addAlias);
 
     }
+
     public void addAlias(String alias, String fieldName) {
         fields.put(alias, fields.get(fieldName));
     }
 
-    public T createWithFieldValues(Set<Pair<? extends String, Object>> fieldValues) {
+    public T createInstanceWithFieldValues(Set<Pair<? extends String, Object>> fieldValues) {
         Objects.requireNonNull(fieldValues, "Overrides must not be null");
 
         try {
@@ -46,7 +47,7 @@ public class InstanceFactory<T> {
         }
     }
 
-    public T create() {
+    public T createInstance() {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (

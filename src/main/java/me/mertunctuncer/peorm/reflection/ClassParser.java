@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 
-public class ClassScanner<T> {
+public class ClassParser<T> {
 
     private final ReflectionContainer<T> reflectionContainer;
     private final List<Field> columnFields = new ArrayList<>();
@@ -16,7 +16,7 @@ public class ClassScanner<T> {
     private final Map<Field, Object> defaults = new HashMap<>();
 
 
-    public ClassScanner(ReflectionContainer<T> reflectionContainer) {
+    public ClassParser(ReflectionContainer<T> reflectionContainer) {
         this.reflectionContainer = Objects.requireNonNull(reflectionContainer, "reflectionContainer must not be null");
 
         reflectionContainer.fields().entrySet().stream().filter(entry -> entry.getValue().isAnnotationPresent(Column.class)).forEach(
@@ -78,7 +78,6 @@ public class ClassScanner<T> {
         Table table = Objects.requireNonNull(reflectionContainer.clazz().getAnnotation(Table.class), "Class must be annotated with @Table");
         return table.name().isEmpty() ? reflectionContainer.clazz().getSimpleName().toLowerCase(Locale.ENGLISH) : table.name();
     }
-
 
     public Map<String, String> getFieldAliases() {
         return fieldAliases;

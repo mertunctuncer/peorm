@@ -16,19 +16,19 @@ class ClassParserTest {
 
     @Test
     void reader_should_throw_npe_if_annotation_is_not_present() {
-        assertThrows(NullPointerException.class, () -> ClassScanner.getTableName(Object.class));
-        Assertions.assertDoesNotThrow(() -> ClassScanner.getTableName(NamedMockTable.class));
+        assertThrows(NullPointerException.class, () -> ClassParser.getTableName(Object.class));
+        Assertions.assertDoesNotThrow(() -> ClassParser.getTableName(NamedMockTable.class));
     }
 
     @Test
     void table_name_should_be_read_correctly() {
-        assertEquals(ClassScanner.getTableName(NamedMockTable.class), "named-mock-table");
-        assertEquals(ClassScanner.getTableName(NamelessMockTable.class), "namelessmocktable");
+        assertEquals(ClassParser.getTableName(NamedMockTable.class), "named-mock-table");
+        assertEquals(ClassParser.getTableName(NamelessMockTable.class), "namelessmocktable");
     }
 
     @Test
     void fields_should_be_read_correctly() {
-        List<Pair<Field, ColumnProperties>> fieldData = ClassScanner.mapFields(NamedMockTable.class);
+        List<Pair<Field, ColumnProperties>> fieldData = ClassParser.mapFields(NamedMockTable.class);
 
         assertEquals(3, fieldData.size());
 

@@ -10,17 +10,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class BlockingTableAccessObject<T> implements TableAccessObject<T> {
 
-    private final ReflectionContainer<T> reflectionContainer;
     private final InstanceFactory<T> instanceFactory;
     private final TableProperties<T> tableProperties;
 
     BlockingTableAccessObject(
             TableProperties<T> tableProperties,
-            ReflectionContainer<T> reflectionContainer,
             InstanceFactory<T> instanceFactory
     ) {
         this.tableProperties = tableProperties;
-        this.reflectionContainer = reflectionContainer;
         this.instanceFactory = instanceFactory;
     }
 
